@@ -1,0 +1,7 @@
+{
+  "name": "CineShield AI",
+  "description": "Multi-agent IP pre-screening and clearance analysis pipeline for CineShield AI powered by Gemini models.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
