@@ -1,0 +1,333 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Archive - CineShield AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "on-tertiary": "#003546",
+                            "on-secondary": "#680008",
+                            "surface-dim": "#181309",
+                            "surface-container-high": "#2f291f",
+                            "on-primary": "#402d00",
+                            "tertiary-fixed": "#bee9ff",
+                            "surface-container-low": "#201b11",
+                            "surface-bright": "#3f382d",
+                            "secondary-container": "#c00019",
+                            "on-tertiary-fixed-variant": "#004d65",
+                            "secondary-fixed-dim": "#ffb3ad",
+                            "on-error-container": "#ffdad6",
+                            "on-error": "#690005",
+                            "error": "#ffb4ab",
+                            "on-primary-fixed": "#261900",
+                            "primary-container": "#f4b400",
+                            "primary": "#ffd584",
+                            "outline-variant": "#504533",
+                            "surface-container-lowest": "#120e05",
+                            "inverse-primary": "#7a5900",
+                            "outline": "#9d8f78",
+                            "surface": "#181309",
+                            "error-container": "#93000a",
+                            "secondary": "#ffb3ad",
+                            "tertiary-fixed-dim": "#6ad3ff",
+                            "surface-tint": "#fdbc13",
+                            "surface-container": "#241f15",
+                            "on-primary-container": "#654800",
+                            "on-surface-variant": "#d4c4ac",
+                            "inverse-on-surface": "#363025",
+                            "on-secondary-fixed": "#410003",
+                            "primary-fixed-dim": "#fdbc13",
+                            "inverse-surface": "#ede1d1",
+                            "on-primary-fixed-variant": "#5d4200",
+                            "tertiary-container": "#45ccff",
+                            "on-tertiary-fixed": "#001f2a",
+                            "on-background": "#ede1d1",
+                            "secondary-fixed": "#ffdad6",
+                            "surface-variant": "#3a3429",
+                            "tertiary": "#a9e2ff",
+                            "surface-container-highest": "#3a3429",
+                            "primary-fixed": "#ffdea3",
+                            "on-secondary-container": "#ffcdc8",
+                            "on-surface": "#ede1d1",
+                            "on-secondary-fixed-variant": "#930010",
+                            "on-tertiary-container": "#00546d",
+                            "background": "#181309"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "margin-mobile": "16px",
+                            "unit": "4px",
+                            "container-max": "1440px",
+                            "margin-desktop": "40px",
+                            "gutter": "24px"
+                    },
+                    "fontFamily": {
+                            "headline-lg": [
+                                    "Space Grotesk"
+                            ],
+                            "headline-md": [
+                                    "Space Grotesk"
+                            ],
+                            "body-md": [
+                                    "JetBrains Mono"
+                            ],
+                            "display-lg": [
+                                    "Space Grotesk"
+                            ],
+                            "headline-lg-mobile": [
+                                    "Space Grotesk"
+                            ],
+                            "label-caps": [
+                                    "JetBrains Mono"
+                            ],
+                            "body-lg": [
+                                    "JetBrains Mono"
+                            ]
+                    },
+                    "fontSize": {
+                            "headline-lg": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "headline-md": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "body-md": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "1.5",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "display-lg": [
+                                    "48px",
+                                    {
+                                            "lineHeight": "1.1",
+                                            "letterSpacing": "-0.02em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "headline-lg-mobile": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "fontWeight": "600"
+                                    }
+                            ],
+                            "label-caps": [
+                                    "12px",
+                                    {
+                                            "lineHeight": "1.2",
+                                            "letterSpacing": "0.1em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "body-lg": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "1.6",
+                                            "fontWeight": "400"
+                                    }
+                            ]
+                    }
+            },
+                },
+            }
+    </script>
+<style>
+        body { background-color: #0A0A0A; }
+        .bg-obsidian { background-color: #0A0A0A; }
+        .bg-panel { background-color: #121212; border: 1px solid #2A2A2A; border-radius: 0; }
+        .glass-panel { background-color: rgba(30, 30, 30, 0.85); backdrop-filter: blur(12px); border: 1px solid #2A2A2A; border-radius: 0; }
+        .sharp-edge { border-radius: 0; }
+        .btn-primary { background-color: #F4B400; color: #000000; border-radius: 0; }
+        .btn-secondary { background-color: transparent; border: 1px solid #ffffff; color: #ffffff; border-radius: 0; }
+        .status-chip { border-radius: 0; }
+        .table-row-hover:hover { background-color: #1E1E1E; }
+    </style>
+</head>
+<body class="bg-obsidian text-on-surface font-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tighter">CineShield AI</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative w-64 hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface font-body-md pl-9 pr-3 py-1 sharp-edge placeholder:text-on-surface-variant" placeholder="Search archives..." type="text">
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<button class="btn-primary font-label-caps text-label-caps px-4 py-2 cursor-pointer active:opacity-80 uppercase">
+                    New Project
+                </button>
+<a href="{{DATA:SCREEN:SCREEN_2}}" class="w-8 h-8 bg-surface-container-high rounded-none border border-outline-variant overflow-hidden cursor-pointer block">
+<img alt="Executive User Profile" class="w-full h-full object-cover" data-alt="A highly detailed close-up portrait of a professional executive in a dark, high-end studio setting. The lighting is dramatic and cinematic, with deep shadows and soft highlights on the face. The aesthetic is serious, authoritative, and perfectly suited for a high-stakes legal technology interface. Professional color grading." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvA4hTm1wL4WwpS81YuoJHqKccH3UKON570MOwYIMRBks_cMVtemjZxUWH1PzZb2brfJzY722AaI7gOVDMK-y08eRW25OMc8O4kYmRUsb6EGOGDRaGTQVfqdV1FKriSv2NcUOIDRse6Vc6NsWkPBWFglv3DHWvDMRw3kr2AdHSDVKTHX8itMWNMrvkLKV2jqepToR6pOj23AjkSDxtH3_23v7W3WSl1BQgzS_BFV_iEzBwkKt2DIc">
+</a>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col py-6 gap-y-4 fixed left-0 top-16 h-[calc(100vh-64px)] w-60 bg-surface-container dark:bg-surface-container border-r border-outline-variant dark:border-outline-variant z-40">
+<div class="px-6 mb-4 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary/10 border border-primary flex items-center justify-center sharp-edge">
+<span class="material-symbols-outlined text-primary">movie</span>
+</div>
+<div>
+<h2 class="font-label-caps text-label-caps text-on-surface">Command Center</h2>
+<p class="font-body-md text-[10px] text-on-surface-variant">Legal Forensics v1.0</p>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant dark:text-on-surface-variant opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-primary transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-label-caps text-label-caps">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant dark:text-on-surface-variant opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-primary transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">animated_images</span>
+<span class="font-label-caps text-label-caps">Forensics</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container font-bold border-r-4 border-primary transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label-caps text-label-caps">Archive</span>
+</a>
+</div>
+<div class="flex flex-col mt-auto pb-4">
+<a class="flex items-center gap-3 px-6 py-2 text-on-surface-variant opacity-70 hover:bg-surface-container-high hover:text-primary transition-all text-xs" href="#">
+<span class="material-symbols-outlined text-sm">sensors</span>
+<span class="font-body-md">System Status</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2 text-on-surface-variant opacity-70 hover:bg-surface-container-high hover:text-primary transition-all text-xs" href="#">
+<span class="material-symbols-outlined text-sm">menu_book</span>
+<span class="font-body-md">Documentation</span>
+</a>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="pt-16 md:pl-60 min-h-screen p-margin-mobile md:p-margin-desktop">
+<div class="max-w-[container-max] mx-auto">
+<!-- Header Section -->
+<div class="mb-8 border-b border-outline-variant pb-6">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Secure Vault</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Access completed compliance reports and historical forensics scans.</p>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+<!-- Filters & Search Panel (Left Col) -->
+<div class="xl:col-span-3 space-y-gutter">
+<div class="bg-panel p-6">
+<h3 class="font-label-caps text-label-caps text-primary mb-4 border-b border-outline-variant pb-2">Filter Records</h3>
+<div class="space-y-4">
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Studio</label>
+<select class="w-full bg-surface border-b border-outline-variant text-on-surface font-body-md py-2 sharp-edge focus:border-primary focus:ring-0">
+<option>All Studios</option>
+<option>Paramount</option>
+<option>Universal</option>
+<option>Warner Bros</option>
+</select>
+</div>
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Year</label>
+<select class="w-full bg-surface border-b border-outline-variant text-on-surface font-body-md py-2 sharp-edge focus:border-primary focus:ring-0">
+<option>2023</option>
+<option>2022</option>
+<option>2021</option>
+<option>2020</option>
+</select>
+</div>
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Clearance Type</label>
+<select class="w-full bg-surface border-b border-outline-variant text-on-surface font-body-md py-2 sharp-edge focus:border-primary focus:ring-0">
+<option>All Types</option>
+<option>Character</option>
+<option>Trademark</option>
+<option>Audio</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Data List (Center Col) -->
+<div class="xl:col-span-6 space-y-gutter">
+<div class="bg-panel">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container">
+<span class="font-label-caps text-label-caps text-on-surface">Archive Index</span>
+<span class="font-body-md text-on-surface-variant text-xs">Showing 1-5 of 142 records</span>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- Record Item -->
+<div class="p-4 table-row-hover cursor-pointer transition-colors relative border-l-2 border-transparent hover:border-primary group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline-md text-headline-md text-on-surface text-lg">Project Neon Dawn</h4>
+<span class="status-chip bg-primary/20 text-primary px-2 py-1 font-label-caps text-[10px]">CLEARED</span>
+</div>
+<div class="grid grid-cols-2 gap-4 font-body-md text-xs text-on-surface-variant">
+<div class=""><span class="text-on-surface block mb-1">Studio:</span> Warner Bros</div>
+<div class=""><span class="text-on-surface block mb-1">Date:</span> 2023-11-04</div>
+<div class=""><span class="text-on-surface block mb-1">Type:</span> Character Clearance</div>
+<div class=""><span class="text-on-surface block mb-1">ID:</span> #C-992-XD</div>
+</div>
+</div>
+<!-- Record Item -->
+<div class="p-4 table-row-hover cursor-pointer transition-colors relative border-l-2 border-transparent hover:border-primary group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline-md text-headline-md text-on-surface text-lg">The Quantum Paradox</h4>
+<span class="status-chip bg-error/20 text-error px-2 py-1 font-label-caps text-[10px]">FLAGGED</span>
+</div>
+<div class="grid grid-cols-2 gap-4 font-body-md text-xs text-on-surface-variant">
+<div class=""><span class="text-on-surface block mb-1">Studio:</span> Universal</div>
+<div class=""><span class="text-on-surface block mb-1">Date:</span> 2023-08-22</div>
+<div class=""><span class="text-on-surface block mb-1">Type:</span> Trademark Filing</div>
+<div class=""><span class="text-on-surface block mb-1">ID:</span> #T-441-PQ</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Preview Panel (Right Col) -->
+<div class="xl:col-span-3">
+<div class="glass-panel p-6 h-full flex flex-col">
+<div class="flex items-center gap-2 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<h3 class="font-label-caps text-label-caps text-primary">Certificate Preview</h3>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center text-center opacity-50">
+<span class="material-symbols-outlined text-4xl mb-2">description</span>
+<p class="font-body-md text-sm">Select a record to view its clearance certificate.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+
+
+
+<div style="all: initial;"></div></body><div style="all: initial;"></div></html>

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CineShield AI - Admin Console</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-high": "#2f291f",
+            "error": "#ffb4ab",
+            "on-secondary-container": "#ffcdc8",
+            "outline": "#9d8f78",
+            "on-tertiary-fixed": "#001f2a",
+            "on-tertiary-container": "#00546d",
+            "on-surface-variant": "#d4c4ac",
+            "tertiary-fixed": "#bee9ff",
+            "surface-variant": "#3a3429",
+            "secondary-fixed-dim": "#ffb3ad",
+            "on-background": "#ede1d1",
+            "on-tertiary": "#003546",
+            "on-secondary-fixed-variant": "#930010",
+            "primary-fixed": "#ffdea3",
+            "on-secondary-fixed": "#410003",
+            "inverse-primary": "#7a5900",
+            "secondary": "#ffb3ad",
+            "secondary-container": "#c00019",
+            "on-error-container": "#ffdad6",
+            "background": "#181309",
+            "secondary-fixed": "#ffdad6",
+            "surface-container-lowest": "#120e05",
+            "on-primary-container": "#654800",
+            "tertiary": "#a9e2ff",
+            "outline-variant": "#504533",
+            "on-error": "#690005",
+            "surface-dim": "#181309",
+            "on-surface": "#ede1d1",
+            "inverse-surface": "#ede1d1",
+            "error-container": "#93000a",
+            "on-primary": "#402d00",
+            "surface-tint": "#fdbc13",
+            "on-primary-fixed": "#261900",
+            "tertiary-container": "#45ccff",
+            "surface": "#181309",
+            "surface-bright": "#3f382d",
+            "surface-container-low": "#201b11",
+            "surface-container-highest": "#3a3429",
+            "surface-container": "#241f15",
+            "on-primary-fixed-variant": "#5d4200",
+            "primary-fixed-dim": "#fdbc13",
+            "on-tertiary-fixed-variant": "#004d65",
+            "tertiary-fixed-dim": "#6ad3ff",
+            "primary": "#ffd584",
+            "primary-container": "#f4b400",
+            "inverse-on-surface": "#363025",
+            "on-secondary": "#680008"
+          },
+          "borderRadius": {
+            "DEFAULT": "0px",
+            "none": "0px",
+            "sm": "0px",
+            "md": "0px",
+            "lg": "0px",
+            "xl": "0px",
+            "full": "0px"
+          },
+          "spacing": {
+            "gutter": "24px",
+            "margin-desktop": "40px",
+            "unit": "4px",
+            "margin-mobile": "16px",
+            "container-max": "1440px"
+          },
+          "fontFamily": {
+            "display-lg": ["Space Grotesk"],
+            "body-lg": ["JetBrains Mono"],
+            "headline-lg": ["Space Grotesk"],
+            "headline-lg-mobile": ["Space Grotesk"],
+            "label-caps": ["JetBrains Mono"],
+            "headline-md": ["Space Grotesk"],
+            "body-md": ["JetBrains Mono"]
+          },
+          "fontSize": {
+            "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+            "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+            "label-caps": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700" }],
+            "headline-md": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Scanner line animation for forensic console */
+    @keyframes scanline {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .scanner-active {
+      position: relative;
+      overflow: hidden;
+    }
+    .scanner-active::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #f4b400;
+      box-shadow: 0 0 8px #f4b400;
+      animation: scanline 2.5s infinite linear;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background antialiased font-body-md text-body-md min-h-screen overflow-x-hidden selection:bg-primary selection:text-on-primary">
+<!-- TOP APP BAR (Shared Component: TopNavBar execution) -->
+<header class="flex justify-between items-center px-margin-desktop w-full fixed top-0 z-50 bg-background w-full h-16 border-b border-outline-variant">
+<!-- Left: Brand Logo & Search -->
+<div class="flex items-center space-x-8">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary" data-icon="security" style="font-size: 28px;">security</span>
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tighter">CineShield AI</span>
+<span class="px-2 py-0.5 bg-surface-container-highest border border-outline-variant text-primary font-label-caps text-[10px] tracking-widest uppercase">Admin Terminal</span>
+</div>
+<!-- Search on Left -->
+<div class="relative w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant pl-9 pr-4 py-1.5 text-on-surface placeholder:text-outline text-body-md focus:border-primary focus:ring-0 focus:outline-none transition-colors" placeholder="Search clusters, node hashes, tenants, logs..." type="text"/>
+</div>
+</div>
+<!-- Center: Navigation Links -->
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps uppercase active:opacity-80" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps uppercase active:opacity-80" href="#">Team</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-label-caps text-label-caps uppercase active:opacity-80" href="#">Reports</a>
+<a class="text-primary border-b-2 border-primary pb-1 font-label-caps text-label-caps uppercase font-bold active:opacity-80" href="#">Admin Ops</a>
+</nav>
+<!-- Right: Trailing Actions, Icon Buttons & Profile -->
+<div class="flex items-center space-x-4">
+<button class="px-3 py-1.5 border border-outline-variant hover:border-primary text-on-surface text-label-caps transition-colors active:scale-95 flex items-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="file_download">file_download</span>
+<span>Export</span>
+</button>
+<button class="px-4 py-1.5 bg-primary-container text-on-primary-container font-label-caps font-bold hover:bg-primary transition-colors active:scale-95 flex items-center space-x-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="add_circle">add_circle</span>
+<span>New Scan</span>
+</button>
+<div class="h-6 w-px bg-outline-variant mx-1"></div>
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors relative" title="Notifications">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-primary"></span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:text-primary transition-colors" title="Settings">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<!-- Executive Avatar -->
+<div class="flex items-center space-x-2 pl-2">
+<div class="relative w-8 h-8 border border-primary">
+<img class="w-full h-full object-cover" data-alt="Close up cinematic portrait of a senior film studio legal technologist with sharp glasses and focused expression, illuminated by low key golden amber ambient displays in a dark security terminal room." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWKzf7Fl0fPL8jSCV9JwSbjhUS0YV9MtpgazJG4vo3uz_e9_Re080dHBkma2iisCE_SEzlU7YA_OJd3VGvz9887pclxlqLrapDTz5PZAbgI0csTgzzzNud70E_6qg-KWy6HeADryv3JsXeGm0xaJ13n0YBDOAiulSRUFy_LbmkYMVi1j2EpaxdgLlIlgXKMLmcolk5XH_K6MjctrvCOma1kzWQkfqo-dFVvErtDdEYArixjeoNRYI"/>
+</div>
+</div>
+</div>
+</header>
+<!-- LEFT SIDEBAR NAVIGATION (Shared Component: SideNavBar execution) -->
+<aside class="fixed left-0 top-0 h-full w-[240px] border-r border-outline-variant bg-surface-container-low pt-20 pb-6 px-4 flex flex-col justify-between z-40">
+<!-- Header Block -->
+<div>
+<div class="flex items-center space-x-3 pb-6 border-b border-outline-variant mb-6 px-2">
+<div class="w-9 h-9 border border-outline-variant flex items-center justify-center bg-surface-container">
+<span class="material-symbols-outlined text-primary" data-icon="corporate_fare">corporate_fare</span>
+</div>
+<div class="overflow-hidden">
+<h2 class="font-headline-md text-[15px] font-bold text-primary truncate leading-tight">Studio Alpha</h2>
+<p class="font-label-caps text-[10px] text-outline tracking-wider uppercase truncate">Legal Division</p>
+</div>
+</div>
+<!-- Main Navigation Links -->
+<nav class="space-y-1">
+<a class="flex items-center space-x-3 px-3 py-2.5 text-on-surface-variant hover:bg-surface-container-highest transition-all font-label-caps text-label-caps uppercase active:scale-95" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="folder_open">folder_open</span>
+<span>Projects</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2.5 text-on-surface-variant hover:bg-surface-container-highest transition-all font-label-caps text-label-caps uppercase active:scale-95" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="biometric_setup">animated_images</span>
+<span>Forensics</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2.5 text-on-surface-variant hover:bg-surface-container-highest transition-all font-label-caps text-label-caps uppercase active:scale-95" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="inventory_2">inventory_2</span>
+<span>Archive</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2.5 text-on-surface-variant hover:bg-surface-container-highest transition-all font-label-caps text-label-caps uppercase active:scale-95" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="analytics">analytics</span>
+<span>System Status</span>
+</a>
+<!-- Active Tab: Admin Console / Ops -->
+<a class="flex items-center space-x-3 px-3 py-2.5 bg-primary text-on-primary font-bold transition-all font-label-caps text-label-caps uppercase active:scale-95 border-l-2 border-on-primary" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="admin_panel_settings">admin_panel_settings</span>
+<span>Admin Console</span>
+</a>
+</nav>
+<!-- Mid CTA Button -->
+<div class="mt-8 px-2">
+<button class="w-full py-2 bg-surface-container-high border border-outline-variant hover:border-primary text-primary font-label-caps text-[11px] tracking-wider uppercase transition-colors flex items-center justify-center space-x-1.5 active:scale-95">
+<span class="material-symbols-outlined text-[15px]" data-icon="memory">memory</span>
+<span>Upgrade Node</span>
+</button>
+</div>
+</div>
+<!-- Footer Utility Links -->
+<div class="pt-4 border-t border-outline-variant space-y-1">
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-highest font-label-caps text-label-caps transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="description">description</span>
+<span>Docs</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container-highest font-label-caps text-label-caps transition-all active:scale-95" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span>
+<span>Support</span>
+</a>
+<div class="px-3 pt-3 flex items-center justify-between text-outline text-[11px] font-label-caps">
+<span>SECURITY TIER 05</span>
+<span class="inline-block w-2 h-2 bg-primary"></span>
+</div>
+</div>
+</aside>
+<!-- MAIN VIEW CANVAS (Offset by top bar and sidebar) -->
+<main class="ml-[240px] pt-16 p-8 min-h-screen bg-background">
+<div class="max-w-[1440px] mx-auto space-y-6">
+<!-- PAGE HEADER & STATUS CALLOUT -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between pb-4 border-b border-outline-variant gap-4">
+<div>
+<div class="flex items-center space-x-2 text-primary font-label-caps text-[11px] tracking-widest uppercase mb-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="shield">shield</span>
+<span>CENTRAL GOVERNANCE ENGINE • ROOT CLEARANCE</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-on-background uppercase tracking-tight">System Administration &amp; Governance</h1>
+<p class="text-on-surface-variant font-body-md mt-1 text-[13px] max-w-3xl">
+            Studio-wide legal AI infrastructure, cluster provisioning, tenant licenses, and high-clearance access audit.
+          </p>
+</div>
+<!-- System Heartbeat Tag -->
+<div class="flex items-center space-x-4 bg-surface-container-low px-4 py-2 border border-outline-variant self-start lg:self-auto">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-outline uppercase">Infrastructure Health</span>
+<span class="text-primary font-bold text-[13px] font-label-caps flex items-center space-x-1.5">
+<span class="w-2 h-2 bg-primary-container animate-pulse inline-block"></span>
+<span>NOMINAL (LATENCY 14MS)</span>
+</span>
+</div>
+<div class="h-6 w-px bg-outline-variant"></div>
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-outline uppercase">Active Model Hash</span>
+<span class="font-label-caps text-on-surface text-[12px]">SHA-256//99F4A</span>
+</div>
+</div>
+</div>
+<!-- QUICK ACTION COMMAND ROW -->
+<div class="flex flex-wrap items-center gap-3">
+<button class="px-4 py-2.5 bg-primary text-on-primary font-label-caps text-label-caps uppercase font-bold hover:bg-primary-fixed transition-colors flex items-center space-x-2 active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="dns">dns</span>
+<span>Deploy Forensic Node</span>
+</button>
+<button class="px-4 py-2.5 bg-surface-container border border-outline-variant hover:border-primary text-on-surface font-label-caps text-label-caps uppercase transition-colors flex items-center space-x-2 active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="key_off">key_off</span>
+<span>Revoke Clearance</span>
+</button>
+<button class="px-4 py-2.5 bg-surface-container border border-outline-variant hover:border-primary text-on-surface font-label-caps text-label-caps uppercase transition-colors flex items-center space-x-2 active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="assignment_turned_in">assignment_turned_in</span>
+<span>Export Security Audit</span>
+</button>
+<button class="px-4 py-2.5 bg-error-container text-on-error-container border border-error hover:bg-on-secondary font-label-caps text-label-caps uppercase font-bold transition-colors flex items-center space-x-2 active:scale-95">
+<span class="material-symbols-outlined text-[18px]" data-icon="gavel">gavel</span>
+<span>Global Quarantine</span>
+</button>
+</div>
+<!-- EXECUTIVE METRICS GRID (High Contrast & Zero Radius) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-gutter">
+<!-- Metric 1: Active Studio Tenants -->
+<div class="bg-surface-container-low border border-outline-variant p-5 scanner-active relative">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="font-label-caps text-label-caps uppercase">Active Studio Tenants</span>
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="corporate_fare">corporate_fare</span>
+</div>
+<div class="flex items-baseline space-x-3">
+<span class="font-display-lg text-display-lg font-bold text-primary font-label-caps leading-none">08</span>
+<span class="text-on-surface-variant font-label-caps text-[11px] uppercase">/ 10 Permitted</span>
+</div>
+<div class="mt-3 pt-3 border-t border-outline-variant flex items-center justify-between text-[11px] font-label-caps">
+<span class="text-on-surface-variant">Legal Compliance</span>
+<span class="text-primary font-bold">100% VERIFIED</span>
+</div>
+</div>
+<!-- Metric 2: Compute Cluster Utilization -->
+<div class="bg-surface-container-low border border-outline-variant p-5 relative border-t-2 border-t-primary">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="font-label-caps text-label-caps uppercase">Compute Utilization</span>
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="developer_board">developer_board</span>
+</div>
+<div class="flex items-baseline space-x-3">
+<span class="font-display-lg text-display-lg font-bold text-on-background font-label-caps leading-none">74%</span>
+<span class="text-primary font-label-caps text-[11px] uppercase">H100 Tensor Pods</span>
+</div>
+<div class="mt-3 pt-3 border-t border-outline-variant flex items-center justify-between text-[11px] font-label-caps">
+<span class="text-on-surface-variant">Provisioned Nodes</span>
+<span class="text-on-surface font-bold">32 Dedicated Active</span>
+</div>
+</div>
+<!-- Metric 3: AI Model Governance -->
+<div class="bg-surface-container-low border border-outline-variant p-5 relative">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="font-label-caps text-label-caps uppercase">AI Model Governance</span>
+<span class="material-symbols-outlined text-primary text-[18px]" data-icon="verified_user">verified_user</span>
+</div>
+<div class="flex items-baseline space-x-3">
+<span class="font-display-lg text-[36px] font-bold text-primary font-label-caps leading-tight">v4.2.1</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high text-primary font-label-caps text-[9px] uppercase border border-outline-variant">LOCKED</span>
+</div>
+<div class="mt-3 pt-3 border-t border-outline-variant flex items-center justify-between text-[11px] font-label-caps">
+<span class="text-on-surface-variant">Model Alignment Drift</span>
+<span class="text-primary font-bold">0.00% (STABLE)</span>
+</div>
+</div>
+<!-- Metric 4: Security & Clearance Incidents -->
+<div class="bg-surface-container-low border border-outline-variant p-5 relative">
+<div class="flex items-center justify-between text-outline mb-2">
+<span class="font-label-caps text-label-caps uppercase">Clearance Incidents</span>
+<span class="material-symbols-outlined text-secondary text-[18px]" data-icon="warning">warning</span>
+</div>
+<div class="flex items-baseline space-x-3">
+<span class="font-display-lg text-display-lg font-bold text-on-background font-label-caps leading-none">00</span>
+<span class="text-error font-label-caps text-[11px] uppercase">Critical Faults</span>
+</div>
+<div class="mt-3 pt-3 border-t border-outline-variant flex items-center justify-between text-[11px] font-label-caps">
+<span class="text-on-surface-variant">Resolved Flags</span>
+<span class="text-on-surface-variant font-bold">3 WARNING OVERRIDES</span>
+</div>
+</div>
+</div>
+<!-- MAIN DUAL-PANEL BENTO LAYOUT -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- LEFT/CENTER (8 Cols): Forensic Compute Cluster Management Table -->
+<div class="lg:col-span-8 bg-surface-container-low border border-outline-variant flex flex-col">
+<!-- Table Header / Control strip -->
+<div class="p-5 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div>
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="hub">hub</span>
+<h2 class="font-headline-md text-[18px] font-bold text-on-background uppercase">Forensic Compute Cluster Infrastructure</h2>
+</div>
+<p class="text-outline font-label-caps text-[11px] mt-0.5 uppercase">Direct hardware telemetry &amp; multi-tenant isolation pipelines</p>
+</div>
+<div class="flex items-center space-x-2">
+<span class="text-outline font-label-caps text-[11px]">AUTO-BALANCING:</span>
+<span class="px-2 py-0.5 bg-primary-container text-on-primary-container font-label-caps text-[10px] font-bold">ACTIVE</span>
+</div>
+</div>
+<!-- Table Element -->
+<div class="overflow-x-auto flex-1">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant text-outline font-label-caps text-[11px] tracking-wider uppercase">
+<th class="py-3 px-4">Node Identifier</th>
+<th class="py-3 px-4">Studio Tenant</th>
+<th class="py-3 px-4">Hardware Cores</th>
+<th class="py-3 px-4">Pipeline Workload</th>
+<th class="py-3 px-4">Engine State</th>
+<th class="py-3 px-4 text-right">Directives</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant text-[13px] font-body-md text-on-surface">
+<!-- Row 1: Warner Bros Alpha Node -->
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="py-3.5 px-4 font-bold text-primary font-label-caps">
+                    NODE-ALPHA-01
+                    <span class="block text-[10px] text-outline font-normal">US-WEST-VPC-04</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-semibold text-on-background">Warner Bros. Legal</span>
+<span class="block text-[11px] text-outline">Tenancy #WB-882</span>
+</td>
+<td class="py-3.5 px-4 font-label-caps text-[12px]">8x NVIDIA H100</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="document_scanner">document_scanner</span>
+<span>Deep Script Ingestion</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2 py-0.5 bg-surface-container-high text-primary border border-outline-variant font-label-caps text-[10px] tracking-wider uppercase">
+                      Operational
+                    </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center space-x-1">
+<button class="px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase" title="Soft Restart">Restart</button>
+<button class="px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase" title="Scale Resources">Scale</button>
+<button class="px-2 py-1 bg-error-container text-on-error-container border border-error text-[10px] font-label-caps uppercase" title="Quarantine Node">Isolate</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Universal Pictures Forensics Node -->
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="py-3.5 px-4 font-bold text-primary font-label-caps">
+                    NODE-ALPHA-02
+                    <span class="block text-[10px] text-outline font-normal">US-EAST-VPC-12</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-semibold text-on-background">Universal Studio Group</span>
+<span class="block text-[11px] text-outline">Tenancy #UNI-409</span>
+</td>
+<td class="py-3.5 px-4 font-label-caps text-[12px]">4x NVIDIA A100</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="videocam">videocam</span>
+<span>4K Dailies Watermark Scan</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2 py-0.5 bg-primary-container text-on-primary-container font-label-caps text-[10px] tracking-wider uppercase font-bold">
+                      High Load (91%)
+                    </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center space-x-1">
+<button class="px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase">Restart</button>
+<button class="px-2 py-1 bg-primary text-on-primary text-[10px] font-label-caps uppercase font-bold">Auto-Scale</button>
+<button class="px-2 py-1 bg-error-container text-on-error-container border border-error text-[10px] font-label-caps uppercase">Isolate</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Sony Pictures Node -->
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="py-3.5 px-4 font-bold text-primary font-label-caps">
+                    NODE-ALPHA-03
+                    <span class="block text-[10px] text-outline font-normal">EU-CENTRAL-01</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-semibold text-on-background">Sony Pictures Ent.</span>
+<span class="block text-[11px] text-outline">Tenancy #SPE-112</span>
+</td>
+<td class="py-3.5 px-4 font-label-caps text-[12px]">8x NVIDIA H100</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="mic">mic</span>
+<span>Voiceprint Clone Matching</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2 py-0.5 bg-surface-container-high text-primary border border-outline-variant font-label-caps text-[10px] tracking-wider uppercase">
+                      Synced
+                    </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center space-x-1">
+<button class="px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase">Restart</button>
+<button class="px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase">Scale</button>
+<button class="px-2 py-1 bg-error-container text-on-error-container border border-error text-[10px] font-label-caps uppercase">Isolate</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Paramount Pictures Forensics Node -->
+<tr class="hover:bg-surface-container-highest transition-colors">
+<td class="py-3.5 px-4 font-bold text-primary font-label-caps">
+                    NODE-ALPHA-04
+                    <span class="block text-[10px] text-outline font-normal">US-WEST-VPC-09</span>
+</td>
+<td class="py-3.5 px-4">
+<span class="font-semibold text-on-background">Paramount Global Legal</span>
+<span class="block text-[11px] text-outline">Tenancy #PAR-934</span>
+</td>
+<td class="py-3.5 px-4 font-label-caps text-[12px]">4x NVIDIA A100</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center space-x-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="balance">balance</span>
+<span>Actor Likeness Synthesis Audit</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center px-2 py-0.5 bg-surface-container-high text-primary border border-outline-variant font-label-caps text-[10px] tracking-wider uppercase">
+                      Operational
+                    </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center space-x-1">
+<button class="px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase">Restart</button>
+<button class="px-2 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase">Scale</button>
+<button class="px-2 py-1 bg-error-container text-on-error-container border border-error text-[10px] font-label-caps uppercase">Isolate</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Sub-bar Footer -->
+<div class="p-3 bg-surface-container border-t border-outline-variant flex items-center justify-between text-[11px] font-label-caps text-outline">
+<span>SHOWING 4 OF 32 CLUSTER NODES</span>
+<div class="flex items-center space-x-3">
+<span class="text-primary cursor-pointer hover:underline">VIEW ALL CLUSTERS</span>
+<span>•</span>
+<span>ENCRYPTED HARDWARE HSM ACTIVE</span>
+</div>
+</div>
+</div>
+<!-- RIGHT (4 Cols): Studio License & Quota Overview -->
+<div class="lg:col-span-4 bg-surface-container-low border border-outline-variant p-5 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-3 border-b border-outline-variant">
+<div>
+<h3 class="font-headline-md text-[17px] font-bold text-primary uppercase">Studio License &amp; Quotas</h3>
+<p class="text-outline font-label-caps text-[10px] uppercase">Enterprise Master Agreement</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="verified">verified</span>
+</div>
+<!-- Quota Metrics Breakdown -->
+<div class="space-y-5 mt-5">
+<!-- Quota 1: Storage -->
+<div>
+<div class="flex justify-between items-center text-[12px] font-label-caps mb-1.5">
+<span class="text-on-surface-variant">VAULT STORAGE (ENCRYPTED)</span>
+<span class="text-on-surface font-bold">142.8 TB / 200 TB</span>
+</div>
+<div class="w-full h-2 bg-surface-container border border-outline-variant">
+<div class="h-full bg-primary" style="width: 71.4%;"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label-caps text-outline mt-1">
+<span>Usage: 71.4%</span>
+<span>57.2 TB Remaining</span>
+</div>
+</div>
+<!-- Quota 2: Ingestion Throughput -->
+<div>
+<div class="flex justify-between items-center text-[12px] font-label-caps mb-1.5">
+<span class="text-on-surface-variant">DAILY FORENSIC INGESTION</span>
+<span class="text-on-surface font-bold">18.4 TB / 25 TB/DAY</span>
+</div>
+<div class="w-full h-2 bg-surface-container border border-outline-variant">
+<div class="h-full bg-primary-container" style="width: 73.6%;"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label-caps text-outline mt-1">
+<span>Current Flow: 220 MB/s</span>
+<span>Resets in 04h 12m</span>
+</div>
+</div>
+<!-- Quota 3: High Risk Allocations -->
+<div>
+<div class="flex justify-between items-center text-[12px] font-label-caps mb-1.5">
+<span class="text-on-surface-variant">HIGH-CLEARANCE DEEP SCANS</span>
+<span class="text-on-surface font-bold">88 / 100 QUOTA</span>
+</div>
+<div class="w-full h-2 bg-surface-container border border-outline-variant">
+<div class="h-full bg-error" style="width: 88%;"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label-caps text-outline mt-1">
+<span class="text-error font-bold">THRESHOLD WARNING (&gt;85%)</span>
+<span>12 Tokens Left</span>
+</div>
+</div>
+</div>
+<!-- Legal Provision Status Box -->
+<div class="mt-6 p-3 bg-surface-container border border-outline-variant">
+<div class="flex items-center space-x-2 text-primary font-label-caps text-[11px] mb-1">
+<span class="material-symbols-outlined text-[15px]" data-icon="policy">policy</span>
+<span class="font-bold">STUDIO INDEMNITY GUARANTEE</span>
+</div>
+<p class="text-[11px] text-on-surface-variant leading-relaxed">
+                Active policy clause #449-B provides $25M automated IP liability safe-harbor coverage per audited title.
+              </p>
+</div>
+</div>
+<!-- Bottom Button -->
+<div class="mt-6 pt-4 border-t border-outline-variant">
+<button class="w-full py-2 bg-surface-container-high border border-outline-variant hover:border-primary text-primary font-label-caps text-[11px] tracking-wider uppercase transition-colors flex items-center justify-center space-x-1.5 active:scale-95">
+<span class="material-symbols-outlined text-[16px]" data-icon="tune">tune</span>
+<span>Reallocate Tenant Quotas</span>
+</button>
+</div>
+</div>
+</div>
+<!-- FULL WIDTH BOTTOM SECTION: Real-Time Security Audit Log -->
+<div class="bg-surface-container-low border border-outline-variant">
+<div class="p-4 border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-primary text-[20px]" data-icon="lock_open">lock_open</span>
+<div>
+<h2 class="font-headline-md text-[17px] font-bold text-on-background uppercase">Real-Time Security &amp; Clearance Audit Stream</h2>
+<p class="text-outline font-label-caps text-[10px] uppercase">Immutable Cryptographic Access Ledger • Zero-Trust Enforced</p>
+</div>
+</div>
+<div class="flex items-center space-x-3">
+<div class="flex items-center space-x-1.5 text-[11px] font-label-caps text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+<span>LIVE LOGGING ACTIVE</span>
+</div>
+<button class="px-3 py-1 bg-surface-container border border-outline-variant hover:border-primary text-on-surface text-[10px] font-label-caps uppercase flex items-center space-x-1">
+<span class="material-symbols-outlined text-[13px]" data-icon="filter_list">filter_list</span>
+<span>Filter Events</span>
+</button>
+</div>
+</div>
+<!-- High-Density Forensic Log Records -->
+<div class="divide-y divide-outline-variant font-label-caps text-[12px]">
+<!-- Event 1 -->
+<div class="p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center space-x-4">
+<span class="text-outline text-[11px]">2024-10-24 14:32:08.019</span>
+<span class="px-1.5 py-0.5 bg-primary text-on-primary font-bold text-[10px]">CLEARANCE L05</span>
+<span class="text-on-background font-semibold">OVERRIDE: Full Frame Latent Hash Export</span>
+<span class="text-outline">Target: "Project Chimera - Reel 04"</span>
+</div>
+<div class="flex items-center space-x-6 text-[11px]">
+<span class="text-on-surface-variant">OPERATOR: <strong class="text-primary">E. Vance (VP Legal)</strong></span>
+<span class="text-outline">IP: 198.51.100.42 (TLS 1.3)</span>
+<span class="text-primary font-bold">2FA BIOMETRIC PASS</span>
+</div>
+</div>
+<!-- Event 2 -->
+<div class="p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center space-x-4">
+<span class="text-outline text-[11px]">2024-10-24 14:31:42.884</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high text-primary border border-outline-variant text-[10px]">CLEARANCE L03</span>
+<span class="text-on-background">Automated Copyright Injunction Pipeline Dispatched</span>
+<span class="text-outline">Target: "External Torrent Hash #9802A"</span>
+</div>
+<div class="flex items-center space-x-6 text-[11px]">
+<span class="text-on-surface-variant">OPERATOR: <strong class="text-on-surface">AUTO-BOT #09</strong></span>
+<span class="text-outline">IP: 10.0.4.19 (Cluster Internal)</span>
+<span class="text-on-surface-variant">CEASE &amp; DESIST GENERATED</span>
+</div>
+</div>
+<!-- Event 3 -->
+<div class="p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center space-x-4">
+<span class="text-outline text-[11px]">2024-10-24 14:28:19.412</span>
+<span class="px-1.5 py-0.5 bg-error-container text-on-error-container border border-error text-[10px] font-bold">CLEARANCE REJECT</span>
+<span class="text-secondary font-semibold">UNAUTHORIZED ATTEMPT: Training Weights Extraction</span>
+<span class="text-outline">Target: "Voice Synthesis Neutralizer v4"</span>
+</div>
+<div class="flex items-center space-x-6 text-[11px]">
+<span class="text-on-surface-variant">OPERATOR: <strong class="text-secondary">UNKNOWN KEY (ID: 0x992)</strong></span>
+<span class="text-error">IP: 203.0.113.190 [FLAGGED]</span>
+<span class="text-error font-bold">PORT QUARANTINED</span>
+</div>
+</div>
+<!-- Event 4 -->
+<div class="p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3 hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center space-x-4">
+<span class="text-outline text-[11px]">2024-10-24 14:24:01.108</span>
+<span class="px-1.5 py-0.5 bg-surface-container-high text-primary border border-outline-variant text-[10px]">CLEARANCE L04</span>
+<span class="text-on-background">Studio Tenant License Extension Confirmed</span>
+<span class="text-outline">Target: "Sony Pictures Global Partition"</span>
+</div>
+<div class="flex items-center space-x-6 text-[11px]">
+<span class="text-on-surface-variant">OPERATOR: <strong class="text-on-surface">Chief SysAdmin Root</strong></span>
+<span class="text-outline">IP: 198.51.100.01 (Admin VPN)</span>
+<span class="text-primary">POLICY UPDATED</span>
+</div>
+</div>
+</div>
+<!-- Log Footer Pagination & Status -->
+<div class="p-3 bg-surface-container border-t border-outline-variant flex items-center justify-between text-[11px] font-label-caps text-outline">
+<div class="flex items-center space-x-2">
+<span class="material-symbols-outlined text-[15px]" data-icon="storage">storage</span>
+<span>SHARD REPLICA 03 • ZERO SYNC DRIFT • WORM ARCHIVE COMPLIANT</span>
+</div>
+<div class="flex items-center space-x-4">
+<span class="cursor-pointer hover:text-primary">PREVIOUS 50</span>
+<span>[ 1 / 480 ]</span>
+<span class="cursor-pointer text-primary hover:underline">NEXT 50 →</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

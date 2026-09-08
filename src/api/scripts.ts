@@ -38,7 +38,7 @@ const upload = multer({
 
 // Middleware to handle multer limits and errors gracefully
 const uploadMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  upload.single('file')(req, res, (err: unknown) => {
+  (upload.single('file') as any)(req, res, (err: unknown) => {
     if (err) {
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
@@ -108,8 +108,8 @@ router.post('/upload', uploadMiddleware, async (req: Request, res: Response, nex
       }
     );
 
-    // Store parsed screenplay representation in tempStore for analysis and viewer access
-    tempStore.saveScreenplay(scriptId, normalizedScreenplay);
+    // Store parsed screenplay representation in repository (memory, GCS, DB) for analysis and viewer access
+    await repository.saveScreenplay(scriptId, normalizedScreenplay);
 
     const response: ScriptUploadResponse = {
       success: true,
@@ -150,7 +150,7 @@ router.get('/:id/screenplay', async (req: Request, res: Response, next: NextFunc
       throw new NotFoundError('Script', scriptId);
     }
 
-    const screenplay = tempStore.getScreenplay(scriptId);
+    const screenplay = await repository.getScreenplay(scriptId);
     if (!screenplay) {
       throw new NotFoundError('Screenplay data', scriptId);
     }

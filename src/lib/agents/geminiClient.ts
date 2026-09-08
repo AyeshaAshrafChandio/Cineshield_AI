@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { NotConfiguredError } from '../errors/AppError';
 import { secretsManager } from '../security/secrets';
 
-export const GEMINI_MODEL = secretsManager.getSecret('GEMINI_MODEL') || 'gemini-2.5-flash';
+export const GEMINI_MODEL = secretsManager.getSecret('GEMINI_MODEL') || 'gemini-3.6-flash';
 
 /**
  * Validates if a valid GEMINI_API_KEY is configured in the environment or secrets manager

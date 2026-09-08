@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Profile &amp; Settings - CineShield AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#3a3429",
+                        "error": "#ffb4ab",
+                        "surface-container-lowest": "#120e05",
+                        "inverse-surface": "#ede1d1",
+                        "tertiary": "#a9e2ff",
+                        "on-primary-container": "#654800",
+                        "on-primary-fixed": "#261900",
+                        "tertiary-container": "#45ccff",
+                        "on-tertiary": "#003546",
+                        "inverse-on-surface": "#363025",
+                        "error-container": "#93000a",
+                        "background": "#181309",
+                        "on-surface": "#ede1d1",
+                        "surface-container": "#241f15",
+                        "surface-container-low": "#201b11",
+                        "surface-dim": "#181309",
+                        "secondary-container": "#c00019",
+                        "tertiary-fixed": "#bee9ff",
+                        "on-tertiary-container": "#00546d",
+                        "primary-fixed-dim": "#fdbc13",
+                        "primary-fixed": "#ffdea3",
+                        "primary": "#ffd584",
+                        "on-secondary-container": "#ffcdc8",
+                        "surface": "#181309",
+                        "inverse-primary": "#7a5900",
+                        "secondary-fixed-dim": "#ffb3ad",
+                        "secondary-fixed": "#ffdad6",
+                        "on-error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#930010",
+                        "tertiary-fixed-dim": "#6ad3ff",
+                        "on-primary": "#402d00",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "on-tertiary-fixed": "#001f2a",
+                        "secondary": "#ffb3ad",
+                        "on-secondary-fixed": "#410003",
+                        "on-secondary": "#680008",
+                        "surface-container-high": "#2f291f",
+                        "on-error": "#690005",
+                        "outline-variant": "#504533",
+                        "primary-container": "#f4b400",
+                        "outline": "#9d8f78",
+                        "on-surface-variant": "#d4c4ac",
+                        "on-background": "#ede1d1",
+                        "surface-tint": "#fdbc13",
+                        "on-tertiary-fixed-variant": "#004d65",
+                        "surface-bright": "#3f382d",
+                        "surface-container-highest": "#3a3429"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "container-max": "1440px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-lg": ["JetBrains Mono"],
+                        "label-caps": ["JetBrains Mono"],
+                        "headline-md": ["Space Grotesk"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "body-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0A0A0A; color: #ede1d1; }
+        .panel { background-color: #121212; border: 1px solid #2A2A2A; border-radius: 0; }
+        .glass-panel { background-color: rgba(30, 30, 30, 0.85); backdrop-filter: blur(12px); border: 1px solid #2A2A2A; border-radius: 0; }
+        .input-field { background-color: transparent; border: none; border-bottom: 1px solid #2A2A2A; color: #ede1d1; border-radius: 0; padding: 8px 0; outline: none; transition: border-color 0.2s; }
+        .input-field:focus { border-bottom-color: #f4b400; }
+        .btn-primary { background-color: #f4b400; color: #000000; border-radius: 0; font-family: 'JetBrains Mono', monospace; font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 0.1em; padding: 12px 24px; transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: #ffd584; }
+        .btn-secondary { background-color: transparent; color: #ede1d1; border: 1px solid #ede1d1; border-radius: 0; font-family: 'JetBrains Mono', monospace; font-weight: 700; text-transform: uppercase; font-size: 12px; letter-spacing: 0.1em; padding: 12px 24px; transition: all 0.2s; }
+        .btn-secondary:hover { background-color: #ede1d1; color: #0A0A0A; }
+        
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0A0A0A; }
+        ::-webkit-scrollbar-thumb { background: #2A2A2A; }
+        ::-webkit-scrollbar-thumb:hover { background: #3a3429; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden font-body-md text-body-md">
+<!-- SideNavBar (from JSON) -->
+<nav aria-label="Sidebar Navigation" class="hidden md:flex flex-col h-full pt-20 pb-4 px-2 bg-surface-container-low dark:bg-surface-container-low fixed left-0 top-0 h-full w-[240px] border-r border-outline-variant dark:border-outline-variant z-40 transition-all duration-200 ease-in-out">
+<div class="px-4 mb-8">
+<h1 class="font-headline-md text-headline-md text-primary">CineShield AI</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">Digital Forensics</p>
+</div>
+<ul class="flex-grow space-y-2">
+<li>
+<a class="flex items-center px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">dashboard</span>
+<span class="font-label-caps text-label-caps">Overview</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">gavel</span>
+<span class="font-label-caps text-label-caps">Risk Analysis</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">biotech</span>
+<span class="font-label-caps text-label-caps">Asset Scan</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">markdown_copy</span>
+<span class="font-label-caps text-label-caps">Legal Vault</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">group</span>
+<span class="font-label-caps text-label-caps">Team</span>
+</a>
+</li>
+<!-- Intent Fallback active state for 'Team' or 'Settings' related page -->
+<li class="mt-8">
+<a class="flex items-center px-4 py-3 text-primary dark:text-primary font-bold bg-surface-container-highest dark:bg-surface-container-highest transition-colors border-l-2 border-primary" href="#">
+<span class="material-symbols-outlined mr-3 text-xl">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+</li>
+</ul>
+<div class="px-4 mb-4">
+<button class="w-full btn-primary flex justify-center items-center">
+<span class="material-symbols-outlined mr-2 text-sm">add</span>
+                New Analysis
+            </button>
+</div>
+<ul class="space-y-1 border-t border-outline-variant pt-4 mt-2">
+<li>
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">description</span>
+<span class="font-label-caps text-label-caps text-[10px]">Documentation</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mr-3 text-lg">help</span>
+<span class="font-label-caps text-label-caps text-[10px]">Support</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- TopNavBar (from JSON - Mobile fallback logic applies) -->
+<nav aria-label="Mobile Navigation" class="md:hidden flex justify-between items-center w-full px-margin-mobile h-16 fixed top-0 z-50 bg-surface/95 backdrop-blur-md border-b border-outline-variant dark:border-outline-variant">
+<span class="font-headline-md text-headline-md font-bold tracking-tighter text-primary dark:text-primary">CineShield AI</span>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-primary cursor-pointer">settings</span>
+<img alt="Studio Executive Avatar" class="w-8 h-8 rounded-full border border-primary object-cover" data-alt="A small circular avatar of a studio executive in a dimly lit high-tech environment. The lighting is cinematic with subtle gold edge highlights. Highly detailed, professional portrait." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD42A_J83ZBwN_FL4SaMHgBq8SVMjlUsvAR6jSwFBXP4o5DT9TdHWu4SRORoJu0jrbL8Y1uT_VK5aPb9_raZT_vOmzCdvLPkSx1Gc6rvWyBDT-GlyJd0-mwoTwxDpT21H2n9pw_-e0oyiWjzEKcXRtHzi2N09ehEPtJAySnljOy7lA4M3KJl8KZ2qeUH_YEXh0w9JUHlgDWVxRMq4vPZY1xOplf50MzKLWiznk7eMewIxuOhjFJ9z8"/>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow ml-0 md:ml-[240px] mt-16 md:mt-0 p-margin-mobile md:p-margin-desktop overflow-y-auto relative">
+<!-- Header Section -->
+<header class="mb-gutter">
+<div class="panel p-8 flex flex-col md:flex-row items-start md:items-center gap-8 relative overflow-hidden">
+<!-- Decorative element -->
+<div class="absolute top-0 right-0 w-64 h-full opacity-20 pointer-events-none" style="background: linear-gradient(90deg, transparent, rgba(244, 180, 0, 0.2));"></div>
+<div class="relative">
+<img alt="Julian Vane Avatar" class="w-32 h-32 object-cover border border-outline-variant" data-alt="A high-quality close-up portrait of a sharp-looking Chief Legal Officer named Julian Vane. He is wearing a dark, tailored suit in a futuristic, low-light command center. The image has a raw, high-contrast cinematic grading with deep blacks and sharp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsIwbcFz5JeWu974Z1_zP57darnooFD5OCyfPCZqHvHTfNAoR4XJapsvzb8vtH1oP4fXXejO0wVHyeM3GwSNolE3wz5m_OtW56v4DpPE4_OAO-HEd7PFSqnWxsp6Xqq_xgKzusZsdPC00pMjC8Vpr8Cj7mPyMurRQ2-lAbludAZG4HCHGQEQ1pO66LepMOojynu0i9K6Tc0inGnJplr0gTQEJEcix_PVs7izRr0z0aKqfCatW_crU"/>
+<div class="absolute -bottom-2 -right-2 bg-primary px-2 py-1 font-label-caps text-label-caps text-on-primary-fixed">VERIFIED</div>
+</div>
+<div class="flex-grow">
+<h2 class="font-display-lg text-display-lg text-on-background mb-2">Julian Vane</h2>
+<div class="flex flex-col sm:flex-row sm:items-center gap-4 font-body-lg text-body-lg text-on-surface-variant">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">badge</span> Chief Legal Officer</span>
+<span class="hidden sm:block text-outline-variant">|</span>
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-primary text-sm">domain</span> Studio Alpha</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[200px]">
+<div class="flex justify-between items-center bg-surface-container p-3 border border-outline-variant">
+<span class="font-label-caps text-label-caps text-on-surface-variant">CLEARANCE</span>
+<span class="font-body-lg text-primary font-bold">LEVEL_05</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Tabs -->
+<nav class="mb-gutter border-b border-outline-variant flex overflow-x-auto hide-scrollbar">
+<button class="px-6 py-4 font-label-caps text-label-caps text-primary border-b-2 border-primary bg-surface-container-highest whitespace-nowrap transition-colors" id="tab-account" onclick="switchTab('account')">Account</button>
+<button class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high whitespace-nowrap transition-colors border-b-2 border-transparent" id="tab-security" onclick="switchTab('security')">Security</button>
+<button class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high whitespace-nowrap transition-colors border-b-2 border-transparent" id="tab-preferences" onclick="switchTab('preferences')">Preferences</button>
+<button class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high whitespace-nowrap transition-colors border-b-2 border-transparent" id="tab-api" onclick="switchTab('api')">API Access</button><button class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant hover:text-primary hover:bg-surface-container-high whitespace-nowrap transition-colors border-b-2 border-transparent" id="tab-team" onclick="switchTab('team')">Team Management</button>
+</nav>
+<!-- Tab Content: Account -->
+<div class="space-y-gutter" id="content-account">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Contact Info Panel -->
+<section class="panel p-6">
+<h3 class="font-headline-md text-headline-md text-on-background mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">contact_mail</span> Contact Information
+                    </h3>
+<div class="space-y-6">
+<div class="flex flex-col">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-2">Primary Email</label>
+<input class="input-field font-body-lg" readonly="" type="email" value="j.vane@studioalpha.com"/>
+</div>
+<div class="flex flex-col">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-2">Backup Email</label>
+<input class="input-field font-body-lg" type="email" value="legal.secure@cineshield.ai"/>
+</div>
+<div class="flex flex-col">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-2">Secure Comm Channel (Phone)</label>
+<input class="input-field font-body-lg" type="tel" value="+1 (555) 019-8234"/>
+</div>
+<div class="pt-4 flex justify-end">
+<button class="btn-primary">Update Contact</button>
+</div>
+</div>
+</section>
+<!-- Notifications Panel -->
+<section class="panel p-6">
+<h3 class="font-headline-md text-headline-md text-on-background mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">notifications_active</span> Alert Configuration
+                    </h3>
+<div class="space-y-4">
+<!-- Custom Toggle Item -->
+<div class="flex items-center justify-between p-4 bg-surface-container border border-outline-variant hover:border-outline transition-colors cursor-pointer">
+<div>
+<h4 class="font-body-lg text-on-background">Critical Risk Alerts</h4>
+<p class="font-body-md text-on-surface-variant mt-1">Immediate notification on Level 4+ AI generation risks.</p>
+</div>
+<div class="relative w-12 h-6 bg-primary rounded-none transition-colors duration-200 ease-in-out">
+<div class="absolute left-6 top-1 bg-surface-container-lowest w-4 h-4 border border-outline-variant transition-transform duration-200 ease-in-out"></div>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container border border-outline-variant hover:border-outline transition-colors cursor-pointer">
+<div>
+<h4 class="font-body-lg text-on-background">Daily Digest</h4>
+<p class="font-body-md text-on-surface-variant mt-1">Summary of scan logs and minor copyright matches.</p>
+</div>
+<div class="relative w-12 h-6 bg-surface-container-high border border-outline-variant rounded-none transition-colors duration-200 ease-in-out">
+<div class="absolute left-1 top-1 bg-on-surface-variant w-4 h-4 border border-outline-variant transition-transform duration-200 ease-in-out"></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Placeholder for other tabs (hidden by default) -->
+<div class="hidden" id="content-security">
+<div class="panel p-6 flex items-center justify-center h-64 border-t-2 border-primary">
+<p class="font-body-lg text-on-surface-variant flex items-center gap-3">
+<span class="material-symbols-outlined text-primary animate-pulse">lock</span> Security module initializing...
+                 </p>
+</div>
+</div>
+<div class="hidden" id="content-preferences">
+<div class="panel p-6 flex items-center justify-center h-64 border-t-2 border-primary">
+<p class="font-body-lg text-on-surface-variant flex items-center gap-3">
+<span class="material-symbols-outlined text-primary animate-pulse">tune</span> Preferences module initializing...
+                 </p>
+</div>
+</div>
+<div class="hidden" id="content-api">
+<div class="panel p-6 flex items-center justify-center h-64 border-t-2 border-primary">
+<p class="font-body-lg text-on-surface-variant flex items-center gap-3">
+<span class="material-symbols-outlined text-primary animate-pulse">api</span> API access module initializing...
+                 </p>
+</div>
+</div><div class="hidden" id="content-team"><section class="panel p-6"><div class="flex justify-between items-center mb-8"><h3 class="font-headline-md text-headline-md text-on-background flex items-center gap-2"><span class="material-symbols-outlined text-primary">groups</span> Studio Team</h3><button class="btn-primary flex items-center gap-2"><span class="material-symbols-outlined text-sm">person_add</span> Invite Member</button></div><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="border-b border-outline-variant"><tr class="font-label-caps text-label-caps text-on-surface-variant"><th class="pb-4 px-2">Name</th><th class="pb-4 px-2">Role</th><th class="pb-4 px-2">Clearance</th><th class="pb-4 px-2">Status</th><th class="pb-4 px-2"></th></tr></thead><tbody class="font-body-md"><tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors"><td class="py-4 px-2 font-bold text-on-background">Sarah Jenkins</td><td class="py-4 px-2 text-on-surface-variant">Senior Counsel</td><td class="py-4 px-2"><span class="bg-surface-container px-2 py-1 border border-outline-variant text-primary text-[10px] font-bold">LEVEL_04</span></td><td class="py-4 px-2"><span class="flex items-center gap-2 text-primary"><span class="w-2 h-2 bg-primary rounded-full"></span> Active</span></td><td class="py-4 px-2 text-right"><span class="material-symbols-outlined cursor-pointer text-on-surface-variant hover:text-primary">more_vert</span></td></tr><tr class="border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors"><td class="py-4 px-2 font-bold text-on-background">Marcus Thorne</td><td class="py-4 px-2 text-on-surface-variant">Forensic Lead</td><td class="py-4 px-2"><span class="bg-surface-container px-2 py-1 border border-outline-variant text-primary text-[10px] font-bold">LEVEL_05</span></td><td class="py-4 px-2"><span class="flex items-center gap-2 text-primary"><span class="w-2 h-2 bg-primary rounded-full"></span> Active</span></td><td class="py-4 px-2 text-right"><span class="material-symbols-outlined cursor-pointer text-on-surface-variant hover:text-primary">more_vert</span></td></tr><tr class="hover:bg-surface-container-low transition-colors"><td class="py-4 px-2 font-bold text-on-background">Elena Rossi</td><td class="py-4 px-2 text-on-surface-variant">Studio Head</td><td class="py-4 px-2"><span class="bg-surface-container px-2 py-1 border border-outline-variant text-primary text-[10px] font-bold">LEVEL_05</span></td><td class="py-4 px-2"><span class="flex items-center gap-2 text-on-surface-variant opacity-60"><span class="w-2 h-2 bg-on-surface-variant rounded-full"></span> Pending</span></td><td class="py-4 px-2 text-right"><span class="material-symbols-outlined cursor-pointer text-on-surface-variant hover:text-primary">more_vert</span></td></tr></tbody></table></div></section></div>
+</main>
+<script>
+        // Simple tab switching logic
+        function switchTab(tabId) {
+            // Hide all contents
+            document.querySelectorAll('[id^="content-"]').forEach(el => el.classList.add('hidden'));
+            // Reset all tabs styles
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('text-primary', 'border-primary', 'bg-surface-container-highest');
+                el.classList.add('text-on-surface-variant', 'border-transparent');
+            });
+            
+            // Show selected content
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            
+            // Style selected tab
+            const activeTab = document.getElementById('tab-' + tabId);
+            activeTab.classList.remove('text-on-surface-variant', 'border-transparent');
+            activeTab.classList.add('text-primary', 'border-primary', 'bg-surface-container-highest');
+        }
+    </script>
+</body></html>

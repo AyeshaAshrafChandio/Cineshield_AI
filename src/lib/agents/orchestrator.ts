@@ -61,7 +61,7 @@ export class AgentOrchestrator extends EventEmitter {
 
       // Stage 1: Parsing Verification
       await this.updateStage(analysisId, 'parsing', 20, 'Verifying screenplay structure and scene metadata');
-      const screenplay = tempStore.getScreenplay(run.scriptId);
+      const screenplay = await repository.getScreenplay(run.scriptId);
       if (!screenplay) {
         throw new Error(`Screenplay data for script ${run.scriptId} was not found in storage.`);
       }

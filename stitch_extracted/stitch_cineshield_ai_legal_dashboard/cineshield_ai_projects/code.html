@@ -1,0 +1,437 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CineShield AI - Projects</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary": "#003546",
+                    "on-secondary": "#680008",
+                    "surface-dim": "#181309",
+                    "surface-container-high": "#2f291f",
+                    "on-primary": "#402d00",
+                    "tertiary-fixed": "#bee9ff",
+                    "surface-container-low": "#201b11",
+                    "surface-bright": "#3f382d",
+                    "secondary-container": "#c00019",
+                    "on-tertiary-fixed-variant": "#004d65",
+                    "secondary-fixed-dim": "#ffb3ad",
+                    "on-error-container": "#ffdad6",
+                    "on-error": "#690005",
+                    "error": "#ffb4ab",
+                    "on-primary-fixed": "#261900",
+                    "primary-container": "#f4b400",
+                    "primary": "#ffd584",
+                    "outline-variant": "#504533",
+                    "surface-container-lowest": "#120e05",
+                    "inverse-primary": "#7a5900",
+                    "outline": "#9d8f78",
+                    "surface": "#181309",
+                    "error-container": "#93000a",
+                    "secondary": "#ffb3ad",
+                    "tertiary-fixed-dim": "#6ad3ff",
+                    "surface-tint": "#fdbc13",
+                    "surface-container": "#241f15",
+                    "on-primary-container": "#654800",
+                    "on-surface-variant": "#d4c4ac",
+                    "inverse-on-surface": "#363025",
+                    "on-secondary-fixed": "#410003",
+                    "primary-fixed-dim": "#fdbc13",
+                    "inverse-surface": "#ede1d1",
+                    "on-primary-fixed-variant": "#5d4200",
+                    "tertiary-container": "#45ccff",
+                    "on-tertiary-fixed": "#001f2a",
+                    "on-background": "#ede1d1",
+                    "secondary-fixed": "#ffdad6",
+                    "surface-variant": "#3a3429",
+                    "tertiary": "#a9e2ff",
+                    "surface-container-highest": "#3a3429",
+                    "primary-fixed": "#ffdea3",
+                    "on-secondary-container": "#ffcdc8",
+                    "on-surface": "#ede1d1",
+                    "on-secondary-fixed-variant": "#930010",
+                    "on-tertiary-container": "#00546d",
+                    "background": "#181309"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "16px",
+                    "unit": "4px",
+                    "container-max": "1440px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg": [
+                            "Space Grotesk"
+                    ],
+                    "headline-md": [
+                            "Space Grotesk"
+                    ],
+                    "body-md": [
+                            "JetBrains Mono"
+                    ],
+                    "display-lg": [
+                            "Space Grotesk"
+                    ],
+                    "headline-lg-mobile": [
+                            "Space Grotesk"
+                    ],
+                    "label-caps": [
+                            "JetBrains Mono"
+                    ],
+                    "body-lg": [
+                            "JetBrains Mono"
+                    ]
+            },
+            "fontSize": {
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg-mobile": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .no-radius { border-radius: 0 !important; }
+        .glass-panel {
+            background-color: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .scanner-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 2px;
+            width: 30%;
+            background-color: #F4B400;
+            animation: scan 2s infinite linear;
+            box-shadow: 0 0 8px #F4B400;
+        }
+        @keyframes scan {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen font-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tighter">CineShield AI</span>
+</div>
+<div class="flex-1 max-w-md mx-8">
+<div class="relative flex items-center w-full">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-container-high border-b border-outline-variant focus:border-primary focus:ring-0 text-on-surface font-body-md pl-10 pr-4 py-2 no-radius placeholder:text-on-surface-variant/50 transition-colors" placeholder="Search projects, slates, or forensic IDs..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-on-surface-variant dark:text-on-surface-variant">
+<button class="hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors p-2 no-radius cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="hover:bg-surface-variant dark:hover:bg-surface-variant transition-colors p-2 no-radius cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-caps text-label-caps px-6 py-2 no-radius hover:bg-primary transition-colors border border-transparent">
+                New Project
+            </button>
+<a href="{{DATA:SCREEN:SCREEN_2}}" class="w-8 h-8 bg-surface-variant border border-outline-variant no-radius overflow-hidden flex items-center justify-center hover:border-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant">person</span>
+</a>
+</div>
+</header>
+<!-- SideNavBar & Main Content Wrapper -->
+<div class="flex pt-16 min-h-screen">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-16 h-[calc(100vh-64px)] w-60 bg-surface-container dark:bg-surface-container border-r border-outline-variant dark:border-outline-variant flex flex-col py-6 gap-y-4 z-40">
+<div class="px-6 mb-4">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 bg-surface-variant border border-outline-variant no-radius overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A highly detailed, stark monochrome studio logo for an AI forensic unit, featuring sharp geometric lines and a high-contrast minimalist design. The logo is set against a deep black background, exuding a highly technical and authoritative command center aesthetic. Studio lighting highlights the crisp edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBchfH1DOeqR2wix2-oe4x6DgczNmCf3uMoEfvX0wM7XCuGL2vyCKQi0M89k8qlZJQOjiOZJyQX9BKSVQE6dfa1C-gAlOydv2pANzlqV5wlHGaqdQxA3u6_ChnMtO23oK5zzrVVTMBXrtKQ-fA3VErODqtMFfPQPkLX0CVF3rCU0gd7Dy0phC7W_xZMSjj12C3dnWVWEGPGhXCo5nDdKU1VKLXuVH_afHswOGGPDe_K8MuIIWsJnw4">
+</div>
+<div>
+<h2 class="font-label-caps text-label-caps text-on-surface">Command Center</h2>
+<p class="font-body-md text-[10px] text-on-surface-variant opacity-70">Legal Forensics v1.0</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<button class="bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container font-bold border-r-4 border-primary font-label-caps text-label-caps flex items-center gap-3 px-6 py-3 no-radius text-left w-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+                    Projects
+                </button>
+<button class="text-on-surface-variant dark:text-on-surface-variant opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-primary transition-all font-label-caps text-label-caps flex items-center gap-3 px-6 py-3 no-radius text-left w-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[18px]">animated_images</span>
+                    Forensics
+                </button>
+<button class="text-on-surface-variant dark:text-on-surface-variant opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-primary transition-all font-label-caps text-label-caps flex items-center gap-3 px-6 py-3 no-radius text-left w-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[18px]">history_edu</span>
+                    Archive
+                </button>
+</div>
+<div class="mt-auto flex flex-col gap-1 border-t border-outline-variant pt-4">
+<button class="text-on-surface-variant dark:text-on-surface-variant opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-primary transition-all font-label-caps text-label-caps flex items-center gap-3 px-6 py-3 no-radius text-left w-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[18px]">sensors</span>
+                    System Status
+                </button>
+<button class="text-on-surface-variant dark:text-on-surface-variant opacity-70 hover:bg-surface-container-high dark:hover:bg-surface-container-high hover:text-primary transition-all font-label-caps text-label-caps flex items-center gap-3 px-6 py-3 no-radius text-left w-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-[18px]">menu_book</span>
+                    Documentation
+                </button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="ml-60 flex-1 p-margin-desktop bg-[#0A0A0A]">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="font-display-lg text-display-lg text-on-surface mb-2">Active Slates</h1>
+<p class="font-body-md text-on-surface-variant max-w-2xl">Monitoring 42 active productions across 8 studios. AI forensic analysis running continuously on ingested dailies and pre-vis assets.</p>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 border border-outline-variant bg-surface px-4 py-2 text-on-surface font-label-caps text-label-caps hover:bg-surface-container-high transition-colors no-radius">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                        Filters
+                    </button>
+<div class="flex bg-surface border border-outline-variant no-radius">
+<button class="px-4 py-2 bg-surface-container-high text-primary font-label-caps text-label-caps no-radius flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+</button>
+<button class="px-4 py-2 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps no-radius border-l border-outline-variant flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">view_list</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Filter Pills -->
+<div class="flex gap-3 mb-8">
+<span class="bg-surface-variant border border-outline-variant text-on-surface font-label-caps text-[10px] px-3 py-1 cursor-pointer hover:border-primary transition-colors">ALL PROJECTS</span>
+<span class="bg-[#121212] border border-outline-variant text-on-surface-variant font-label-caps text-[10px] px-3 py-1 cursor-pointer hover:border-primary transition-colors">IN PRODUCTION</span>
+<span class="bg-[#121212] border border-outline-variant text-on-surface-variant font-label-caps text-[10px] px-3 py-1 cursor-pointer hover:border-primary transition-colors">POST-PRODUCTION</span>
+<span class="bg-[#121212] border border-outline-variant text-on-surface-variant font-label-caps text-[10px] px-3 py-1 cursor-pointer hover:border-primary transition-colors">DEVELOPMENT</span>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Project Card 1: Scanning (High Priority) -->
+<div class="col-span-12 lg:col-span-8 bg-[#121212] border border-[#2A2A2A] relative overflow-hidden flex flex-col group hover:border-outline-variant transition-colors">
+<div class="scanner-bar"></div>
+<div class="p-6 flex flex-col h-full border-b-[2px] border-transparent">
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-[10px] text-primary tracking-widest">WARNER BROS.</span>
+<span class="w-1 h-1 bg-surface-variant rounded-full"></span>
+<span class="font-body-md text-[12px] text-on-surface-variant">Post-Production</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface leading-none">Project: OMEGA PROTOCOL</h3>
+<p class="font-body-md text-on-surface-variant mt-2 text-sm max-w-xl">VFX Sequence 42B ingested. Running neural comparison against protected intellectual property databases.</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="bg-surface-variant text-on-surface font-label-caps text-[10px] px-2 py-1 mb-2 border border-outline-variant animate-pulse flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-primary">radar</span> SCANNING
+                                </span>
+<div class="text-right">
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">RISK PROBABILITY</span>
+<span class="font-body-md text-2xl text-on-surface font-bold">--%</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mt-auto pt-6 border-t border-[#2A2A2A]">
+<div>
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">ASSETS ANALYZED</span>
+<span class="font-body-md text-on-surface">1,402 / 5,000</span>
+</div>
+<div>
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">EST. COMPLETION</span>
+<span class="font-body-md text-on-surface">02:14:00</span>
+</div>
+<div class="text-right">
+<button class="text-primary font-label-caps text-[10px] hover:underline underline-offset-4 flex items-center justify-end gap-1 w-full h-full">
+                                    VIEW LIVE STREAM <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Project Card 2: Violation (Alert) -->
+<div class="col-span-12 lg:col-span-4 bg-[#121212] border border-[#2A2A2A] relative flex flex-col group hover:border-error-container transition-colors">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-error"></div>
+<div class="p-6 flex flex-col h-full bg-error-container/5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-[10px] text-error tracking-widest">UNIVERSAL</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-none">ECHOES OF TOMORROW</h3>
+</div>
+<span class="bg-error text-on-error font-label-caps text-[10px] px-2 py-1 border border-error no-radius">VIOLATION</span>
+</div>
+<div class="mt-4 mb-6">
+<span class="block font-label-caps text-[10px] text-error mb-1">CRITICAL MATCH DETECTED</span>
+<div class="bg-surface-container p-3 border border-error/30 font-body-md text-[12px] text-on-surface-variant">
+                                Structural similarity &gt; 92% found in Act 3 dialogue script vs. Protected DB Entry [A-773].
+                            </div>
+</div>
+<div class="mt-auto flex justify-between items-end border-t border-[#2A2A2A] pt-4">
+<div>
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">RISK SCORE</span>
+<span class="font-body-md text-3xl text-error font-bold">98<span class="text-sm text-error/70">/100</span></span>
+</div>
+<button class="bg-transparent border border-error text-error font-label-caps text-[10px] px-4 py-2 hover:bg-error/10 transition-colors">
+                                REVIEW REPORT
+                            </button>
+</div>
+</div>
+</div>
+<!-- Project Card 3: Compliant -->
+<div class="col-span-12 lg:col-span-4 bg-[#121212] border border-[#2A2A2A] flex flex-col hover:border-outline-variant transition-colors group">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-[#2A2A2A] group-hover:bg-outline-variant transition-colors"></div>
+<div class="p-6 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest">SONY PICTURES</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-none">THE SILENT SEA</h3>
+</div>
+<span class="bg-transparent text-on-surface-variant font-label-caps text-[10px] px-2 py-1 border border-[#2A2A2A] no-radius">COMPLIANT</span>
+</div>
+<div class="mt-auto flex justify-between items-end border-t border-[#2A2A2A] pt-4">
+<div>
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">LAST SCAN</span>
+<span class="font-body-md text-[12px] text-on-surface">2 hrs ago</span>
+</div>
+<div class="text-right">
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">RISK SCORE</span>
+<span class="font-body-md text-xl text-on-surface font-bold">12<span class="text-sm text-on-surface-variant">/100</span></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Project Card 4: Under Review -->
+<div class="col-span-12 lg:col-span-4 bg-[#121212] border border-[#2A2A2A] flex flex-col hover:border-outline-variant transition-colors group">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-primary-container"></div>
+<div class="p-6 flex flex-col h-full bg-primary-container/5">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-[10px] text-primary tracking-widest">PARAMOUNT</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-none">NEON HORIZON</h3>
+</div>
+<span class="bg-primary-container text-on-primary-container font-label-caps text-[10px] px-2 py-1 border border-primary-container no-radius whitespace-nowrap">UNDER REVIEW</span>
+</div>
+<div class="mt-auto flex justify-between items-end border-t border-[#2A2A2A] pt-4">
+<div>
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">FLAGGED ASSETS</span>
+<span class="font-body-md text-[14px] text-primary">3 Audio Tracks</span>
+</div>
+<div class="text-right">
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">RISK SCORE</span>
+<span class="font-body-md text-xl text-primary font-bold">64<span class="text-sm text-primary/70">/100</span></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Project Card 5: Compliant (List-style density representation in grid) -->
+<div class="col-span-12 lg:col-span-4 bg-[#121212] border border-[#2A2A2A] flex flex-col hover:border-outline-variant transition-colors group">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-[#2A2A2A] group-hover:bg-outline-variant transition-colors"></div>
+<div class="p-6 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label-caps text-[10px] text-on-surface-variant tracking-widest">A24</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-none">MIDNIGHT SUN</h3>
+</div>
+<span class="bg-transparent text-on-surface-variant font-label-caps text-[10px] px-2 py-1 border border-[#2A2A2A] no-radius">COMPLIANT</span>
+</div>
+<div class="mt-auto flex justify-between items-end border-t border-[#2A2A2A] pt-4">
+<div>
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">LAST SCAN</span>
+<span class="font-body-md text-[12px] text-on-surface">5 hrs ago</span>
+</div>
+<div class="text-right">
+<span class="block font-label-caps text-[10px] text-on-surface-variant mb-1">RISK SCORE</span>
+<span class="font-body-md text-xl text-on-surface font-bold">04<span class="text-sm text-on-surface-variant">/100</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-center">
+<button class="bg-transparent border border-outline-variant text-on-surface-variant font-label-caps text-[12px] px-8 py-3 hover:text-on-surface hover:border-on-surface transition-colors no-radius">
+                    LOAD MORE PROJECTS
+                </button>
+</div>
+</main>
+</div>
+
+
+
+
+<div style="all: initial;"></div></body><div style="all: initial;"></div></html>

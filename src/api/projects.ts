@@ -10,6 +10,62 @@ import { ProjectInfoResponse, ScreenplayDataResponse } from '../types/api';
 const router = Router();
 
 /**
+ * GET /api/projects
+ * List all projects with script info and latest analysis status
+ */
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const rawProjects = await repository.listProjects();
+    const userRole = (req as any).user?.role;
+    const userId = (req as any).user?.id;
+
+    // Filter by tenant/user if authenticated and non-admin
+    const filtered = rawProjects.filter((p) => {
+      if (!userId || userRole === 'admin') return true;
+      return !p.userId || p.userId === userId;
+    });
+
+    const enriched = await Promise.all(
+      filtered.map(async (project) => {
+        const script = await repository.getScriptByProject(project.id);
+        const latestAnalysis = await repository.getLatestAnalysisForProject(project.id);
+        let findingsCount = 0;
+        if (latestAnalysis) {
+          const findings = await repository.getFindings(latestAnalysis.id);
+          findingsCount = findings.length;
+        }
+
+        return {
+          id: project.id,
+          title: project.title,
+          script: script ? {
+            id: script.id,
+            fileName: script.fileName,
+            fileType: script.fileType,
+            title: script.title,
+            uploadedAt: script.uploadedAt,
+          } : null,
+          analysisStatus: latestAnalysis?.status || null,
+          latestAnalysisId: latestAnalysis?.id || null,
+          overallRiskScore: latestAnalysis?.overallRiskScore ?? null,
+          findingsCount,
+          createdAt: project.createdAt,
+          updatedAt: project.updatedAt,
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      projects: enriched,
+      total: enriched.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * GET /api/projects/:id
  * Retrieve real project details, script information, and analysis status
  */

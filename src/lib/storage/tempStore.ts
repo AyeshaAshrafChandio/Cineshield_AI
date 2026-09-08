@@ -52,6 +52,10 @@ class IngestionStore {
     return this.projects.get(id);
   }
 
+  listProjects(): StoredProject[] {
+    return Array.from(this.projects.values());
+  }
+
   // Script operations
   saveScript(script: StoredScript): void {
     this.scripts.set(script.id, script);

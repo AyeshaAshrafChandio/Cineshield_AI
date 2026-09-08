@@ -71,13 +71,25 @@ export function sanitizeLogMetadata(obj: unknown, depth = 0): unknown {
 class StructuredLogger {
   private formatLog(payload: StructuredLogPayload): string {
     const sanitizedMeta = payload.meta ? (sanitizeLogMetadata(payload.meta) as Record<string, unknown>) : undefined;
-    const cleanPayload: StructuredLogPayload = {
+    const severity = payload.level === 'WARN' ? 'WARNING' : payload.level;
+
+    const gcpPayload: Record<string, unknown> = {
       ...payload,
+      severity,
       ...(sanitizedMeta ? { meta: sanitizedMeta } : {}),
     };
 
+    if (payload.method && payload.path) {
+      gcpPayload.httpRequest = {
+        requestMethod: payload.method,
+        requestUrl: payload.path,
+        status: payload.statusCode,
+        latency: payload.durationMs ? `${payload.durationMs / 1000}s` : undefined,
+      };
+    }
+
     // Output valid single-line JSON format required by Google Cloud Logging
-    return JSON.stringify(cleanPayload);
+    return JSON.stringify(gcpPayload);
   }
 
   info(message: string, context: Partial<StructuredLogPayload> = {}): void {

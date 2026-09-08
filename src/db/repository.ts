@@ -12,6 +12,8 @@ import {
   users,
 } from './schema';
 import { tempStore, StoredProject, StoredScript, StoredAnalysisRun } from '../lib/storage/tempStore';
+import { gcsStorage } from '../lib/storage/gcsStorage';
+import { NormalizedScreenplay } from '../types/screenplay';
 import { RiskFinding } from '../types/api';
 import { DatabaseError, DatabaseNotConfiguredError } from '../lib/errors/AppError';
 
@@ -58,6 +60,16 @@ export class ScreenplayRepository {
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
+        if (project.userId) {
+          await db
+            .insert(users)
+            .values({
+              id: project.userId,
+              email: `${project.userId}@cineshield.internal`,
+              name: project.userId,
+            })
+            .onConflictDoNothing();
+        }
         await db
           .insert(projects)
           .values({
@@ -103,6 +115,32 @@ export class ScreenplayRepository {
     }
 
     return tempStore.getProject(id);
+  }
+
+  async listProjects(): Promise<StoredProject[]> {
+    const memoryProjects = tempStore.listProjects();
+    if (isDatabaseConfigured()) {
+      try {
+        const db = getDb();
+        const rows = await db.select().from(projects).orderBy(desc(projects.createdAt));
+        const map = new Map<string, StoredProject>();
+        for (const m of memoryProjects) map.set(m.id, m);
+        for (const row of rows) {
+          map.set(row.id, {
+            id: row.id,
+            title: row.title,
+            userId: row.userId,
+            createdAt: row.createdAt.toISOString(),
+            updatedAt: row.updatedAt.toISOString(),
+          });
+        }
+        return Array.from(map.values());
+      } catch (err) {
+        console.error('Database read error (listProjects):', err instanceof Error ? err.message : String(err));
+        return memoryProjects;
+      }
+    }
+    return memoryProjects;
   }
 
   async saveScript(script: StoredScript, metadataObj?: Record<string, unknown>): Promise<void> {
@@ -196,6 +234,68 @@ export class ScreenplayRepository {
     }
 
     return tempStore.getScriptByProject(projectId);
+  }
+
+  async saveScreenplay(scriptId: string, screenplay: NormalizedScreenplay): Promise<void> {
+    tempStore.saveScreenplay(scriptId, screenplay);
+
+    if (gcsStorage.isConfigured()) {
+      await gcsStorage.uploadScreenplay(scriptId, screenplay).catch((err) => {
+        console.error('Failed to upload screenplay to GCS in repository:', err);
+      });
+    }
+
+    if (isDatabaseConfigured()) {
+      try {
+        const db = getDb();
+        const existing = await db.select({ metadata: scripts.metadata }).from(scripts).where(eq(scripts.id, scriptId)).limit(1);
+        const existingMeta = (existing[0]?.metadata || {}) as Record<string, unknown>;
+        await db
+          .update(scripts)
+          .set({
+            metadata: {
+              ...existingMeta,
+              screenplay,
+            },
+            updatedAt: new Date(),
+          })
+          .where(eq(scripts.id, scriptId));
+      } catch (err) {
+        console.error('Database write error (saveScreenplay):', err instanceof Error ? err.message : String(err));
+      }
+    }
+  }
+
+  async getScreenplay(scriptId: string): Promise<NormalizedScreenplay | undefined> {
+    const fromMemory = tempStore.getScreenplay(scriptId);
+    if (fromMemory) return fromMemory;
+
+    if (gcsStorage.isConfigured()) {
+      const fromGcs = await gcsStorage.downloadScreenplay(scriptId);
+      if (fromGcs) {
+        tempStore.saveScreenplay(scriptId, fromGcs);
+        return fromGcs;
+      }
+    }
+
+    if (isDatabaseConfigured()) {
+      try {
+        const db = getDb();
+        const rows = await db.select({ metadata: scripts.metadata }).from(scripts).where(eq(scripts.id, scriptId)).limit(1);
+        if (rows.length > 0 && rows[0].metadata) {
+          const meta = rows[0].metadata as Record<string, unknown>;
+          if (meta.screenplay) {
+            const sp = meta.screenplay as NormalizedScreenplay;
+            tempStore.saveScreenplay(scriptId, sp);
+            return sp;
+          }
+        }
+      } catch (err) {
+        console.error('Database read error (getScreenplay):', err instanceof Error ? err.message : String(err));
+      }
+    }
+
+    return undefined;
   }
 
   async saveAnalysisRun(run: StoredAnalysisRun): Promise<void> {
@@ -694,6 +794,12 @@ export class ScreenplayRepository {
   async deleteScript(id: string): Promise<void> {
     this.ensureDatabase();
     tempStore.deleteScript(id);
+
+    if (gcsStorage.isConfigured()) {
+      await gcsStorage.deleteScreenplay(id).catch((err) => {
+        console.error('Failed to delete screenplay from GCS:', err);
+      });
+    }
 
     if (isDatabaseConfigured()) {
       try {

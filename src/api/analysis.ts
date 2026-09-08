@@ -4,6 +4,7 @@ import { startAnalysisSchema, uuidSchema } from '../lib/validation/schemas';
 import { repository, StoredReport } from '../db/repository';
 import { tempStore } from '../lib/storage/tempStore';
 import { agentOrchestrator } from '../lib/agents/orchestrator';
+import { cloudTasksService } from '../lib/tasks/cloudTasks';
 import {
   NotFoundError,
   ValidationError,
@@ -90,12 +91,8 @@ router.post('/start', async (req: Request, res: Response, next: NextFunction) =>
       updatedAt: now,
     });
 
-    // Launch multi-agent pipeline asynchronously with tenant identification
-    setImmediate(() => {
-      agentOrchestrator.runAnalysis(analysisId, tenantUserId).catch((err) => {
-        console.error(`Asynchronous analysis run ${analysisId} encountered an error:`, err);
-      });
-    });
+    // Launch multi-agent pipeline asynchronously via Cloud Tasks or resilient worker queue
+    await cloudTasksService.enqueueAnalysisTask({ analysisId, tenantUserId });
 
     const response: StartAnalysisResponse = {
       success: true,
@@ -326,7 +323,7 @@ router.get('/:id/screenplay', async (req: Request, res: Response, next: NextFunc
       throw new NotFoundError('Analysis', analysisId);
     }
 
-    const screenplay = tempStore.getScreenplay(run.scriptId);
+    const screenplay = await repository.getScreenplay(run.scriptId);
     if (!screenplay) {
       throw new NotFoundError('Screenplay data for script', run.scriptId);
     }

@@ -1,0 +1,311 @@
+<!DOCTYPE html><html class="dark" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>System Status - CineShield AI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#402d00",
+                        "primary-container": "#f4b400",
+                        "on-secondary": "#680008",
+                        "error-container": "#93000a",
+                        "surface-container-highest": "#3a3429",
+                        "inverse-on-surface": "#363025",
+                        "on-tertiary-fixed-variant": "#004d65",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "on-error": "#690005",
+                        "tertiary": "#a9e2ff",
+                        "primary": "#ffd584",
+                        "tertiary-fixed-dim": "#6ad3ff",
+                        "surface-variant": "#3a3429",
+                        "surface-bright": "#3f382d",
+                        "tertiary-container": "#45ccff",
+                        "secondary": "#ffb3ad",
+                        "primary-fixed-dim": "#fdbc13",
+                        "outline-variant": "#504533",
+                        "surface-container-lowest": "#120e05",
+                        "on-primary-container": "#654800",
+                        "on-tertiary-fixed": "#001f2a",
+                        "secondary-fixed": "#ffdad6",
+                        "secondary-container": "#c00019",
+                        "on-tertiary": "#003546",
+                        "surface-container-low": "#201b11",
+                        "on-tertiary-container": "#00546d",
+                        "tertiary-fixed": "#bee9ff",
+                        "on-background": "#ede1d1",
+                        "surface-container-high": "#2f291f",
+                        "secondary-fixed-dim": "#ffb3ad",
+                        "on-surface-variant": "#d4c4ac",
+                        "surface-dim": "#181309",
+                        "on-surface": "#ede1d1",
+                        "background": "#181309",
+                        "error": "#ffb4ab",
+                        "surface-container": "#241f15",
+                        "surface": "#181309",
+                        "on-secondary-fixed": "#410003",
+                        "on-secondary-fixed-variant": "#930010",
+                        "primary-fixed": "#ffdea3",
+                        "outline": "#9d8f78",
+                        "inverse-primary": "#7a5900",
+                        "on-secondary-container": "#ffcdc8",
+                        "inverse-surface": "#ede1d1",
+                        "on-error-container": "#ffdad6",
+                        "surface-tint": "#fdbc13",
+                        "on-primary-fixed": "#261900"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1440px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "unit": "4px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Space Grotesk"],
+                        "label-caps": ["JetBrains Mono"],
+                        "body-lg": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Space Grotesk"],
+                        "headline-md": ["Space Grotesk"],
+                        "display-lg": ["Space Grotesk"],
+                        "body-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "label-caps": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "1.2", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .grid-bg {
+            background-size: 24px 24px;
+            background-image:
+                linear-gradient(to right, rgba(80, 69, 51, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(80, 69, 51, 0.1) 1px, transparent 1px);
+        }
+        .scanner-line {
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { left: -10%; width: 20%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { left: 100%; width: 50%; opacity: 0; }
+        }
+        .glass-panel {
+            background: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen overflow-hidden flex flex-col selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="flex justify-between items-center px-margin-desktop w-full fixed top-0 z-50 bg-background dark:bg-background border-b border-outline-variant h-16">
+<div class="flex items-center gap-gutter">
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tighter">CineShield AI</span>
+</div>
+<!-- Navigation Links (Hidden on mobile) -->
+<div class="hidden md:flex gap-gutter">
+<a class="font-headline-md text-headline-md font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors active:opacity-80" href="#">Dashboard</a>
+<a class="font-headline-md text-headline-md font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors active:opacity-80" href="#">Team</a>
+<a class="font-headline-md text-headline-md font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors active:opacity-80" href="#">Reports</a>
+</div>
+<div class="flex items-center gap-unit">
+<button class="bg-primary-container text-on-primary font-label-caps text-label-caps px-4 py-2 rounded-none uppercase hover:opacity-90 transition-opacity flex items-center gap-2">
+                New Scan
+            </button>
+<button class="bg-transparent border border-outline-variant text-on-surface font-label-caps text-label-caps px-4 py-2 rounded-none uppercase hover:bg-surface-container-highest transition-colors flex items-center gap-2">
+                Export
+            </button>
+<button class="text-on-surface-variant hover:text-primary p-2 transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary p-2 transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<a href="{{DATA:SCREEN:SCREEN_2}}" class="ml-2 block hover:opacity-80 transition-opacity"><img alt="Executive User Profile" class="w-8 h-8 object-cover rounded-none border border-outline-variant" data-alt="A striking digital installation art piece featuring glowing, generative geometric shapes suspended in a vast, minimalist gallery space. The room is illuminated by high-key, soft white lighting that creates a bright, modern light-mode aesthetic. The artwork relies on a sophisticated palette of deep blacks and pristine whites, punctuated by intense accents of vibrant red. The mood is serene yet technologically advanced." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFYXORoWMLiTKQD9-2kG9b9iNtqdmvKWnRIMGfyd8PZYIY5ltf94xrVZtNwKbZa2oXRhvt2JZzfvqYcsZRxdbEFVr5nfkYhI7dwX5_9H8qUC2px3QM6rs03zYVpkmzRGOWf3QHMBN_jfuNfJF49ZkP_M2jFkStzXsfEDXIprXxDZrD34LvIitt-4m01yqgYV-_UfAV_RmXjM8st9zJPIx2uvhRooawoh1V_JF50WIx3BLoB3y7hfw"></a>
+</div>
+</nav>
+<div class="flex flex-1 mt-16 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full py-6 px-4 bg-surface-container-low dark:bg-surface-container-low border-r border-outline-variant w-[240px] flex-shrink-0 z-40">
+<div class="mb-8">
+<div class="flex items-center gap-3 mb-2">
+<img alt="Studio Logo" class="w-10 h-10 object-cover grayscale border border-outline-variant" data-alt="A striking digital installation art piece featuring glowing, generative geometric shapes suspended in a vast, minimalist gallery space. The room is illuminated by high-key, soft white lighting that creates a bright, modern light-mode aesthetic. The artwork relies on a sophisticated palette of deep blacks and pristine whites, punctuated by intense accents of vibrant red. The mood is serene yet technologically advanced." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADbDmjDKFGGXQBh8F9KHG3IbT430V8qFHvk5fi8ozHLuOM3JF8_X27pejbdJNHd8ZueJ2iriPmGl7t2xg3vSmBgMG50PrhbTeLGtk3ZQWkd2NM4kBitBRcFQf7xoSs7Aq30xc4g7kMWDlsL0js-w3btzXVipDUNSfTuQQllNNyNwr-zyribSGG-gvo_TOpSDgesYZ9yoni8LKys6_YjduXjxQ-WoCVOyoOe53s04nXLEkRDJcnBbU">
+<div>
+<div class="font-headline-md text-body-md font-bold text-primary">Studio Alpha</div>
+<div class="font-label-caps text-[10px] text-on-surface-variant uppercase">Legal Division</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest transition-all active:scale-95 font-label-caps text-label-caps rounded-none" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="folder_open">folder_open</span>
+                    Projects
+                </a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest transition-all active:scale-95 font-label-caps text-label-caps rounded-none" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="biometric_setup">animated_images</span>
+                    Forensics
+                </a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest transition-all active:scale-95 font-label-caps text-label-caps rounded-none" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="inventory_2">inventory_2</span>
+                    Archive
+                </a>
+<a class="flex items-center gap-3 p-3 bg-primary text-on-primary font-bold transition-all active:scale-95 font-label-caps text-label-caps rounded-none" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="analytics">analytics</span>
+                    System Status
+                </a>
+</nav>
+<div class="mt-auto flex flex-col gap-4">
+<button class="w-full bg-transparent border border-primary text-primary hover:bg-primary hover:text-on-primary transition-colors py-2 font-label-caps text-label-caps uppercase rounded-none">
+                    Upgrade Node
+                </button>
+<div class="flex justify-between border-t border-outline-variant pt-4">
+<a class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-label-caps text-[10px] uppercase" href="#">
+<span class="material-symbols-outlined text-[14px]" data-icon="description">description</span>
+                        Docs
+                    </a>
+<a class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors font-label-caps text-[10px] uppercase" href="#">
+<span class="material-symbols-outlined text-[14px]" data-icon="help">help</span>
+                        Support
+                    </a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto bg-[#0A0A0A] p-margin-desktop grid-bg relative">
+<div class="max-w-container-max mx-auto h-full flex flex-col">
+<header class="mb-gutter flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">SYSTEM STATICS</h1>
+<p class="font-body-md text-on-surface-variant max-w-2xl">Real-time monitoring of AI legal forensic nodes, server loads, and database integrity.</p>
+</div>
+<div class="font-label-caps text-label-caps bg-surface-container-high border border-outline-variant px-3 py-1 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+                        LIVE
+                    </div>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-gutter">
+<!-- Metric Card 1 -->
+<div class="bg-[#121212] border border-[#2A2A2A] p-6 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-primary-container"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase tracking-widest">Server Load</div>
+<div class="font-headline-lg text-display-lg text-on-surface font-body-lg">32%</div>
+<div class="mt-4 h-1 w-full bg-surface-container-highest">
+<div class="h-full bg-primary-container w-[32%]"></div>
+</div>
+</div>
+<!-- Metric Card 2 -->
+<div class="bg-[#121212] border border-[#2A2A2A] p-6 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-primary-container"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase tracking-widest">AI Processing Latency</div>
+<div class="font-headline-lg text-display-lg text-primary-container font-body-lg">450ms</div>
+<div class="mt-4 flex items-center gap-2 font-label-caps text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +12ms avg
+                        </div>
+</div>
+<!-- Metric Card 3 -->
+<div class="bg-[#121212] border border-[#2A2A2A] p-6 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-primary-container"></div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase tracking-widest">Database Integrity</div>
+<div class="font-headline-lg text-display-lg text-on-surface font-body-lg">99.9%</div>
+<div class="mt-4 flex items-center gap-2 font-label-caps text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px] text-primary-container">check_circle</span> All nodes sync
+                        </div>
+</div>
+</div>
+<div class="flex-1 min-h-[400px] mb-gutter bg-[#121212] border border-[#2A2A2A] relative flex flex-col">
+<div class="absolute top-0 left-0 w-full h-[2px] bg-transparent overflow-hidden">
+<div class="absolute h-full bg-primary-container opacity-50 scanner-line"></div>
+</div>
+<div class="p-6 border-b border-[#2A2A2A] flex justify-between items-center bg-[#121212] z-10">
+<h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-widest">Real-time Node Health</h2>
+<div class="flex gap-4 font-label-caps text-[10px] text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-primary-container"></span> CPU</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-tertiary"></span> MEM</span>
+</div>
+</div>
+<div class="flex-1 relative overflow-hidden flex items-end p-6">
+<!-- Abstract Visualization -->
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background: repeating-linear-gradient(0deg, transparent, transparent 19px, #2A2A2A 20px);"></div>
+<div class="absolute inset-0 opacity-20 pointer-events-none" style="background: repeating-linear-gradient(90deg, transparent, transparent 19px, #2A2A2A 20px);"></div>
+<div class="w-full h-full flex items-end justify-between gap-1 z-10">
+<!-- Simulated bars -->
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[40%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[60%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[30%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[80%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[50%]"></div>
+<div class="w-full bg-tertiary opacity-40 hover:opacity-80 transition-opacity h-[70%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[45%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[90%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[20%]"></div>
+<div class="w-full bg-primary-container opacity-60 hover:opacity-100 transition-opacity h-[55%]"></div>
+</div>
+</div>
+</div>
+<div class="bg-[#121212] border border-[#2A2A2A]">
+<div class="p-4 border-b border-[#2A2A2A]">
+<h2 class="font-label-caps text-label-caps text-on-surface uppercase tracking-widest">Service Logs</h2>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-md text-on-surface">
+<thead class="bg-surface-container-lowest font-label-caps text-[10px] uppercase text-on-surface-variant border-b border-[#2A2A2A]">
+<tr>
+<th class="px-6 py-3 font-normal tracking-wider">Timestamp</th>
+<th class="px-6 py-3 font-normal tracking-wider">Service</th>
+<th class="px-6 py-3 font-normal tracking-wider">Event</th>
+<th class="px-6 py-3 font-normal tracking-wider">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#2A2A2A] font-body-lg text-sm">
+<tr class="hover:bg-[#1E1E1E] transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-on-surface-variant group-hover:text-primary-container transition-colors">10:42:01 UTC</td>
+<td class="px-6 py-4 whitespace-nowrap">Forensics Engine v2.4</td>
+<td class="px-6 py-4 whitespace-nowrap">Online</td>
+<td class="px-6 py-4 whitespace-nowrap"><span class="bg-surface-container-high border border-outline-variant px-2 py-1 font-label-caps text-[10px] uppercase">Nominal</span></td>
+</tr>
+<tr class="hover:bg-[#1E1E1E] transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-on-surface-variant group-hover:text-primary-container transition-colors">10:39:15 UTC</td>
+<td class="px-6 py-4 whitespace-nowrap">Sub-frame Analysis</td>
+<td class="px-6 py-4 whitespace-nowrap">Optimized</td>
+<td class="px-6 py-4 whitespace-nowrap"><span class="bg-surface-container-high border border-outline-variant px-2 py-1 font-label-caps text-[10px] uppercase">Nominal</span></td>
+</tr>
+<tr class="hover:bg-[#1E1E1E] transition-colors group">
+<td class="px-6 py-4 whitespace-nowrap text-on-surface-variant group-hover:text-primary-container transition-colors">10:15:22 UTC</td>
+<td class="px-6 py-4 whitespace-nowrap">Node 04 (EU-West)</td>
+<td class="px-6 py-4 whitespace-nowrap">Sync Error</td>
+<td class="px-6 py-4 whitespace-nowrap"><span class="bg-[#FF3E3E] text-white px-2 py-1 font-label-caps text-[10px] uppercase">Violation</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+
+
+
+<div style="all: initial;"></div>
+
+<div style="all: initial;"></div></body><div style="all: initial;"></div></html>

@@ -4,6 +4,7 @@ import analysisRouter from './analysis';
 import projectsRouter from './projects';
 import findingsRouter from './findings';
 import reportsRouter from './reports';
+import internalTasksRouter from './internalTasks';
 import { AppError } from '../lib/errors/AppError';
 import { isDatabaseConfigured } from '../db/index';
 
@@ -57,23 +58,29 @@ apiRouter.use('/analysis', analysisRouter);
 apiRouter.use('/projects', projectsRouter);
 apiRouter.use('/findings', findingsRouter);
 apiRouter.use('/reports', reportsRouter);
+apiRouter.use('/internal/tasks', internalTasksRouter);
 
 // Centralized error handling middleware for all /api routes
 export function errorHandler(
   err: unknown,
-  _req: Request,
+  req: Request,
   res: Response,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void {
+  const requestId = (req.headers['x-request-id'] as string) || undefined;
+
   // Never leak internal stack traces to the user
-  if (err instanceof AppError) {
-    res.status(err.statusCode).json({
+  const isAppErr = err instanceof AppError || (err && typeof err === 'object' && 'statusCode' in err && 'code' in err);
+  if (isAppErr) {
+    const appErr = err as AppError;
+    res.status(appErr.statusCode).json({
       success: false,
       error: {
-        code: err.code,
-        message: err.message,
-        ...(err.details ? { details: err.details } : {}),
+        code: appErr.code,
+        message: appErr.message,
+        ...(requestId ? { requestId } : {}),
+        ...(appErr.details ? { details: appErr.details } : {}),
       },
     });
     return;
@@ -88,6 +95,7 @@ export function errorHandler(
     error: {
       code: 'INTERNAL_SERVER_ERROR',
       message: 'An unexpected internal server error occurred. Please try again later.',
+      ...(requestId ? { requestId } : {}),
     },
   });
 }

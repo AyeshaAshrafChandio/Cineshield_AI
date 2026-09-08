@@ -1,0 +1,449 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>CineShield AI - Forensics Deep-Dive</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#003546",
+                      "on-secondary": "#680008",
+                      "surface-dim": "#181309",
+                      "surface-container-high": "#2f291f",
+                      "on-primary": "#402d00",
+                      "tertiary-fixed": "#bee9ff",
+                      "surface-container-low": "#201b11",
+                      "surface-bright": "#3f382d",
+                      "secondary-container": "#c00019",
+                      "on-tertiary-fixed-variant": "#004d65",
+                      "secondary-fixed-dim": "#ffb3ad",
+                      "on-error-container": "#ffdad6",
+                      "on-error": "#690005",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed": "#261900",
+                      "primary-container": "#f4b400",
+                      "primary": "#ffd584",
+                      "outline-variant": "#504533",
+                      "surface-container-lowest": "#120e05",
+                      "inverse-primary": "#7a5900",
+                      "outline": "#9d8f78",
+                      "surface": "#181309",
+                      "error-container": "#93000a",
+                      "secondary": "#ffb3ad",
+                      "tertiary-fixed-dim": "#6ad3ff",
+                      "surface-tint": "#fdbc13",
+                      "surface-container": "#241f15",
+                      "on-primary-container": "#654800",
+                      "on-surface-variant": "#d4c4ac",
+                      "inverse-on-surface": "#363025",
+                      "on-secondary-fixed": "#410003",
+                      "primary-fixed-dim": "#fdbc13",
+                      "inverse-surface": "#ede1d1",
+                      "on-primary-fixed-variant": "#5d4200",
+                      "tertiary-container": "#45ccff",
+                      "on-tertiary-fixed": "#001f2a",
+                      "on-background": "#ede1d1",
+                      "secondary-fixed": "#ffdad6",
+                      "surface-variant": "#3a3429",
+                      "tertiary": "#a9e2ff",
+                      "surface-container-highest": "#3a3429",
+                      "primary-fixed": "#ffdea3",
+                      "on-secondary-container": "#ffcdc8",
+                      "on-surface": "#ede1d1",
+                      "on-secondary-fixed-variant": "#930010",
+                      "on-tertiary-container": "#00546d",
+                      "background": "#181309"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "unit": "4px",
+                      "container-max": "1440px",
+                      "margin-desktop": "40px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Space Grotesk"
+                      ],
+                      "headline-md": [
+                              "Space Grotesk"
+                      ],
+                      "body-md": [
+                              "JetBrains Mono"
+                      ],
+                      "display-lg": [
+                              "Space Grotesk"
+                      ],
+                      "headline-lg-mobile": [
+                              "Space Grotesk"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "body-lg": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #0A0A0A; /* Infinite void background */
+            color: theme('colors.on-background');
+        }
+        
+        .panel {
+            background-color: #121212;
+            border: 1px solid #2A2A2A;
+        }
+
+        .glass-panel {
+            background-color: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid #2A2A2A;
+        }
+
+        .scanner-bar {
+            height: 2px;
+            background-color: theme('colors.primary');
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: scan 2s linear infinite;
+            box-shadow: 0 0 8px theme('colors.primary');
+        }
+
+        @keyframes scan {
+            0% { transform: scaleX(0); transform-origin: left; opacity: 1; }
+            50% { transform: scaleX(1); transform-origin: left; opacity: 1; }
+            50.1% { transform: scaleX(1); transform-origin: right; opacity: 1; }
+            100% { transform: scaleX(0); transform-origin: right; opacity: 0; }
+        }
+
+        .metric-glow-warning {
+            border-top: 2px solid theme('colors.primary');
+        }
+
+        .metric-glow-danger {
+            border-top: 2px solid theme('colors.error');
+        }
+        
+        /* Custom scrollbar for high-density tables */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2A2A;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline');
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-body-md font-body-md selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar -->
+<nav aria-label="Top Navigation" class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant" role="navigation">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary tracking-tighter">CineShield AI</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-64 bg-[#121212] border border-[#2A2A2A] rounded-none py-1 pl-10 pr-4 text-body-md font-body-md text-on-surface focus:outline-none focus:border-primary placeholder-on-surface-variant" placeholder="Search parameters..." type="text">
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors active:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="bg-primary text-[#000000] font-label-caps text-label-caps px-4 py-2 hover:bg-surface-tint transition-colors rounded-none active:opacity-80 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">add</span> New Project
+                </button>
+<div class="w-8 h-8 bg-surface-container-high rounded-full overflow-hidden border border-[#2A2A2A]">
+<a href="{{DATA:SCREEN:SCREEN_2}}" class="block w-full h-full cursor-pointer"><img alt="Executive User Profile" class="w-full h-full object-cover" data-alt="A striking portrait of a corporate executive in a sleek, high-tech command center environment. High contrast cinematic lighting with harsh shadows and subtle cool blue undertones. Professional, authoritative mood, fitting an experimental digital forensics dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5Y4zfPjTKHW4qU77WY43-RTps0N_XuHI09FIZgsD4km5cSZWWrFirJFhGeRDnPv9HIRw79G6e0KbH_pfzFsFhAKRDKe70JrCCz4t7C4RlYdljjNGhbPHqBQXdVh-8x68fAwdij8W_FJ4lfmGNNpwMKWjEAEJ-p-L3nriP8IfFcYyOJxoQfa8gAdvcL-exKjXS0HStC6AKMcFfnQa5k0wRnPcinNMBvNvx5yOPV5VG2n-cNU-nank"></a>
+</div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside aria-label="Sidebar Navigation" class="fixed left-0 top-16 h-[calc(100vh-64px)] w-60 bg-surface-container dark:bg-surface-container border-r border-outline-variant dark:border-outline-variant flex flex-col py-6 gap-y-4" role="navigation">
+<div class="px-6 mb-4 flex items-center gap-3">
+<div class="w-10 h-10 bg-[#121212] border border-[#2A2A2A] rounded-none flex items-center justify-center">
+<img alt="Studio Logo" class="w-6 h-6 object-contain" data-alt="A highly stylized, abstract geometric logo of a film studio, etched in pristine white against a void-like black background. Sharp angles, stark contrast, hinting at artificial intelligence and digital legal protection. Monochromatic with a raw technical aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpR1yqWXf6mwlmbo65G36l5AursLLeFIKgILPaEW3NgYoXgwkPiCAIEhPGQhSzFCzMNraDqWb78Ui3yHze_B5bNmvBo_XIJS7IDTj-kVH6xpugyMH-Ta6-x7TBet0J-dqcqNYNgBqJTUDAMglN3j90f6U8XeGLwIvRWry5tBim5wzi_bjzsAyYJP3x4rfb5X6nO_umg_WzBhqyHKE8qro-NkH1OwQ6RjMuF8TmwOAkwsl9jijjR1o">
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary text-sm">Command Center</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant text-[10px]">Legal Forensics v1.0</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-4">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant opacity-70 hover:bg-surface-container-high hover:text-primary transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">folder_open</span>
+<span class="font-label-caps text-label-caps">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-primary-container dark:bg-primary-container text-on-primary-container dark:text-on-primary-container font-bold border-r-4 border-primary active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined">animated_images</span>
+<span class="font-label-caps text-label-caps">Forensics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant opacity-70 hover:bg-surface-container-high hover:text-primary transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-caps text-label-caps">Archive</span>
+</a>
+</nav>
+<div class="mt-auto px-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant opacity-70 hover:bg-surface-container-high hover:text-primary transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">sensors</span>
+<span class="font-label-caps text-label-caps">System Status</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant opacity-70 hover:bg-surface-container-high hover:text-primary transition-all active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-label-caps">Documentation</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-60 mt-16 p-gutter flex-1 overflow-y-auto h-[calc(100vh-64px)]">
+<header class="mb-gutter flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Project: <span class="text-primary">Neon Horizon</span></h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Forensic Deep-Dive Analysis — Frame Sequence #042-089</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-transparent border border-outline text-on-surface px-4 py-2 font-label-caps text-label-caps hover:bg-[#1E1E1E] transition-colors rounded-none flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">download</span> Export Log
+                </button>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-gutter h-[calc(100%-80px)]">
+<!-- Left Column: Detected Entities & Metrics -->
+<div class="col-span-12 lg:col-span-8 flex flex-col gap-gutter">
+<!-- Top Row: Metrics -->
+<div class="grid grid-cols-3 gap-gutter h-28">
+<div class="panel p-4 flex flex-col justify-between metric-glow-danger relative overflow-hidden">
+<div class="scanner-bar"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Critical Risks</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg text-error">03</span>
+<span class="font-label-caps text-label-caps text-error">Flags</span>
+</div>
+</div>
+<div class="panel p-4 flex flex-col justify-between metric-glow-warning relative overflow-hidden">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Entities Pending Review</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg text-primary">12</span>
+<span class="font-label-caps text-label-caps text-primary">Items</span>
+</div>
+</div>
+<div class="panel p-4 flex flex-col justify-between relative">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Scan Confidence</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg text-on-surface">98.4</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">%</span>
+</div>
+</div>
+</div>
+<!-- Main Area: Visualization & Entity List -->
+<div class="flex-1 panel relative overflow-hidden flex flex-col">
+<!-- Scanning Visualization Header -->
+<div class="h-48 border-b border-[#2A2A2A] relative bg-[#0A0A0A] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, #primary 1px, transparent 2px); background-size: 100% 4px;"></div>
+<!-- Central Scan Ring -->
+<div class="relative w-32 h-32 rounded-full border border-[#2A2A2A] flex items-center justify-center">
+<div class="absolute inset-0 border border-primary rounded-full animate-ping opacity-20"></div>
+<div class="w-24 h-24 rounded-full border border-[#504533] flex items-center justify-center relative">
+<div class="absolute inset-0 border-t-2 border-primary rounded-full animate-spin" style="animation-duration: 3s;"></div>
+<span class="material-symbols-outlined text-primary" style="font-size: 32px; font-variation-settings: 'FILL' 1;">policy</span>
+</div>
+</div>
+<div class="absolute top-4 left-4">
+<span class="font-label-caps text-label-caps text-primary animate-pulse">ANALYZING ASSETS...</span>
+</div>
+</div>
+<!-- Entity List -->
+<div class="flex-1 p-0 overflow-y-auto">
+<div class="sticky top-0 bg-[#121212] border-b border-[#2A2A2A] px-4 py-2 flex justify-between items-center z-10">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Detected Entities</span>
+<div class="flex gap-2">
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined" style="font-size: 16px;">filter_list</span></button>
+</div>
+</div>
+<table class="w-full text-left border-collapse">
+<tbody>
+<tr class="border-b border-[#2A2A2A] hover:bg-[#1E1E1E] transition-colors cursor-pointer">
+<td class="p-4 font-body-md text-body-md w-1/3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error" style="font-size: 18px;">warning</span>
+                                             "Cypher Corp" Logo
+                                         </div>
+</td>
+<td class="p-4 font-body-md text-body-md text-on-surface-variant w-1/4">Background Asset</td>
+<td class="p-4 w-1/4">
+<span class="bg-[#FF3E3E] text-[#000000] font-label-caps text-label-caps px-2 py-1 rounded-none inline-block">HIGH RISK</span>
+</td>
+<td class="p-4 text-right">
+<span class="font-body-md text-body-md text-on-surface-variant">99% Match</span>
+</td>
+</tr>
+<tr class="border-b border-[#2A2A2A] hover:bg-[#1E1E1E] transition-colors cursor-pointer">
+<td class="p-4 font-body-md text-body-md">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-size: 18px;">gavel</span>
+                                             Character Name: "J. Doe"
+                                         </div>
+</td>
+<td class="p-4 font-body-md text-body-md text-on-surface-variant">Dialogue/Script</td>
+<td class="p-4">
+<span class="bg-[#F4B400] text-[#000000] font-label-caps text-label-caps px-2 py-1 rounded-none inline-block">UNDER REVIEW</span>
+</td>
+<td class="p-4 text-right">
+<span class="font-body-md text-body-md text-on-surface-variant">85% Match</span>
+</td>
+</tr>
+<tr class="border-b border-[#2A2A2A] hover:bg-[#1E1E1E] transition-colors cursor-pointer opacity-70">
+<td class="p-4 font-body-md text-body-md">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline" style="font-size: 18px;">check_circle</span>
+                                             Generic Car Design
+                                         </div>
+</td>
+<td class="p-4 font-body-md text-body-md text-on-surface-variant">Prop</td>
+<td class="p-4">
+<span class="bg-[#2A2A2A] text-on-surface font-label-caps text-label-caps px-2 py-1 rounded-none inline-block">CLEARED</span>
+</td>
+<td class="p-4 text-right">
+<span class="font-body-md text-body-md text-on-surface-variant">12% Match</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Right Column: Legal Precedents -->
+<div class="col-span-12 lg:col-span-4 flex flex-col">
+<div class="glass-panel flex-1 flex flex-col p-6 h-full">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface">Legal Precedents</h3>
+<span class="material-symbols-outlined text-primary">account_balance</span>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<!-- Precedent Item 1 -->
+<div class="border border-[#2A2A2A] p-4 bg-[#0A0A0A]">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-error">CASE #892-A</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-xs">1998</span>
+</div>
+<h4 class="font-body-md text-body-md font-bold mb-2">MegaCorp v. IndieStudios</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-3">
+                                Injunction granted for incidental background use of stylized corporate logo closely resembling registered trademark.
+                            </p>
+<div class="flex gap-2">
+<span class="bg-[#2A2A2A] text-on-surface font-label-caps text-[10px] px-1.5 py-0.5 rounded-none">TRADEMARK</span>
+<span class="bg-[#2A2A2A] text-on-surface font-label-caps text-[10px] px-1.5 py-0.5 rounded-none">BACKGROUND</span>
+</div>
+</div>
+<!-- Precedent Item 2 -->
+<div class="border border-[#2A2A2A] p-4 bg-[#0A0A0A]">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-primary">CASE #441-B</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-xs">2012</span>
+</div>
+<h4 class="font-body-md text-body-md font-bold mb-2">Doe Estate v. Pictures Inc.</h4>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-3">
+                                Fair use upheld for character name incidental to plot, lacking distinct biographical similarities to plaintiff.
+                            </p>
+<div class="flex gap-2">
+<span class="bg-[#2A2A2A] text-on-surface font-label-caps text-[10px] px-1.5 py-0.5 rounded-none">DEFAMATION</span>
+<span class="bg-[#2A2A2A] text-on-surface font-label-caps text-[10px] px-1.5 py-0.5 rounded-none">FAIR USE</span>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-[#2A2A2A]">
+<button class="w-full bg-transparent border border-primary text-primary px-4 py-3 font-label-caps text-label-caps hover:bg-primary hover:text-[#000000] transition-colors rounded-none flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 16px;">search</span> Run Deep Query
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+
+
+
+<div style="all: initial;"></div></body><div style="all: initial;"></div></html>
