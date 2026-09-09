@@ -146,32 +146,43 @@ describe('Task 3: CineShield Multi-Agent Workflow Engine', () => {
 
   describe('3. Partner Evidence Service Layer', () => {
     it('should report unconfigured state truthfully without fabricating fake data', async () => {
+      const origCloudKey = process.env.IBM_CLOUD_API_KEY;
+      const origApiKey = process.env.IBM_API_KEY;
+      const origBobKey = process.env.IBM_BOB_API_KEY;
+      delete process.env.IBM_CLOUD_API_KEY;
+      delete process.env.IBM_API_KEY;
       delete process.env.IBM_BOB_API_KEY;
 
-      expect(partnerEvidenceService.isConfigured()).toBe(false);
+      try {
+        expect(partnerEvidenceService.isConfigured()).toBe(false);
 
-      const mockEntity: DetectedEntity = {
-        id: randomUUID(),
-        entity: 'Wayne Enterprises',
-        type: 'FICTIONAL_UNIVERSE',
-        sourceText: 'Wayne Enterprises HQ',
-        location: 'EXT. GOTHAM - NIGHT',
-        sceneId: 'sc-1',
-        elementId: 'el-1',
-        startOffset: 0,
-        endOffset: 20,
-        confidence: 0.9,
-        occurrencesCount: 1,
-      };
+        const mockEntity: DetectedEntity = {
+          id: randomUUID(),
+          entity: 'Wayne Enterprises',
+          type: 'FICTIONAL_UNIVERSE',
+          sourceText: 'Wayne Enterprises HQ',
+          location: 'EXT. GOTHAM - NIGHT',
+          sceneId: 'sc-1',
+          elementId: 'el-1',
+          startOffset: 0,
+          endOffset: 20,
+          confidence: 0.9,
+          occurrencesCount: 1,
+        };
 
-      const evidenceMap = await partnerEvidenceService.gatherEvidence([mockEntity]);
-      const result = evidenceMap.get(mockEntity.id);
+        const evidenceMap = await partnerEvidenceService.gatherEvidence([mockEntity]);
+        const result = evidenceMap.get(mockEntity.id);
 
-      expect(result).toBeDefined();
-      expect(result?.isAvailable).toBe(false);
-      expect(result?.matches).toEqual([]);
-      expect(result?.evidence).toEqual([]);
-      expect(result?.notes).toContain('No external trademark or copyright registry records were queried or fabricated');
+        expect(result).toBeDefined();
+        expect(result?.isAvailable).toBe(false);
+        expect(result?.matches).toEqual([]);
+        expect(result?.evidence).toEqual([]);
+        expect(result?.notes).toContain('No external trademark or copyright registry records were queried or fabricated');
+      } finally {
+        if (origCloudKey !== undefined) process.env.IBM_CLOUD_API_KEY = origCloudKey;
+        if (origApiKey !== undefined) process.env.IBM_API_KEY = origApiKey;
+        if (origBobKey !== undefined) process.env.IBM_BOB_API_KEY = origBobKey;
+      }
     });
   });
 

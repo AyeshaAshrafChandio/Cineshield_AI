@@ -7,7 +7,6 @@ import { createRateLimiter } from './src/lib/security/rateLimiter';
 import { authMiddleware } from './src/lib/security/auth';
 import { requestLoggerMiddleware, logger } from './src/lib/observability/logger';
 import { isDatabaseConfigured, closePool } from './src/db/index';
-import { runMigrations } from './src/db/migrate';
 
 dotenv.config();
 
@@ -68,16 +67,6 @@ export async function createApp() {
 
 async function startServer() {
   const PORT = 3000;
-
-  // Run automated database migrations on startup if PostgreSQL is configured
-  if (isDatabaseConfigured()) {
-    try {
-      await runMigrations();
-    } catch (migErr) {
-      logger.error('Startup migration execution error:', migErr);
-      // Keep server alive so Cloud Run container health check succeeds
-    }
-  }
 
   const app = await createApp();
 

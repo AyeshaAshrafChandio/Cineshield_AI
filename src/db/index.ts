@@ -11,12 +11,30 @@ declare global {
 
 export function isDatabaseConfigured(): boolean {
   return Boolean(
-    secretsManager.getSecret('DATABASE_URL') ||
-      (secretsManager.getSecret('SQL_HOST') && secretsManager.getSecret('SQL_USER') && secretsManager.getSecret('SQL_PASSWORD'))
+    (secretsManager.getSecret('SQL_HOST') && secretsManager.getSecret('SQL_USER') && secretsManager.getSecret('SQL_PASSWORD')) ||
+      secretsManager.getSecret('DATABASE_URL')
   );
 }
 
 export function getPoolConfig(): PoolConfig {
+  const sqlHost = secretsManager.getSecret('SQL_HOST');
+  const sqlUser = secretsManager.getSecret('SQL_USER');
+  const sqlPass = secretsManager.getSecret('SQL_PASSWORD');
+  const sqlDb = secretsManager.getSecret('SQL_DB_NAME') || 'cloud_sql_development_database';
+
+  // Prefer Cloud SQL Object Configuration
+  if (sqlHost && sqlUser && sqlPass) {
+    return {
+      host: sqlHost,
+      user: sqlUser,
+      password: sqlPass,
+      database: sqlDb,
+      max: process.env.NODE_ENV === 'production' ? 20 : 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 15000,
+    };
+  }
+
   const dbUrl = secretsManager.getSecret('DATABASE_URL');
   if (dbUrl) {
     return {
@@ -28,10 +46,10 @@ export function getPoolConfig(): PoolConfig {
   }
 
   return {
-    host: secretsManager.getSecret('SQL_HOST') || 'localhost',
-    user: secretsManager.getSecret('SQL_USER') || 'postgres',
-    password: secretsManager.getSecret('SQL_PASSWORD') || 'password',
-    database: secretsManager.getSecret('SQL_DB_NAME') || 'cineshield',
+    host: sqlHost || 'localhost',
+    user: sqlUser || 'postgres',
+    password: sqlPass || 'password',
+    database: sqlDb,
     max: process.env.NODE_ENV === 'production' ? 20 : 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 15000,
