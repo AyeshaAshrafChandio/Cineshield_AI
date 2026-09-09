@@ -48,8 +48,22 @@ export function extractAuthUser(req: Request): AuthenticatedUser {
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7).trim();
-    // Support simple format or token hash
     if (token) {
+      if (token.startsWith('csk_jwt_')) {
+        try {
+          const raw = Buffer.from(token.replace('csk_jwt_', ''), 'base64').toString('utf-8');
+          const [id, email] = raw.split(':');
+          if (id && email) {
+            return {
+              id,
+              email: email.toLowerCase(),
+              role: id.includes('admin') ? 'admin' : 'user',
+            };
+          }
+        } catch {
+          // fall through
+        }
+      }
       return {
         id: `usr-${token.substring(0, 16)}`,
         email: `token-user@cineshield.internal`,

@@ -1,13 +1,97 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import { randomUUID } from 'crypto';
 import { uuidSchema } from '../lib/validation/schemas';
 import { repository } from '../db/repository';
 import { tempStore } from '../lib/storage/tempStore';
+import { parseScreenplay } from '../lib/parsing';
 import { NotFoundError, ValidationError } from '../lib/errors/AppError';
 import { authorizeProject } from '../lib/security/auth';
 import { dataLifecycleManager } from '../lib/storage/cleanupService';
 import { ProjectInfoResponse, ScreenplayDataResponse } from '../types/api';
 
 const router = Router();
+
+/**
+ * POST /api/projects
+ * Create a new project directly (supports JSON payload with raw screenplay text or metadata)
+ */
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { title, studio, rawText, fileName, fileType } = req.body || {};
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      throw new ValidationError('Project title is required.');
+    }
+
+    const projectId = randomUUID();
+    const now = new Date().toISOString();
+    const cleanTitle = title.trim();
+
+    await repository.saveProject({
+      id: projectId,
+      title: cleanTitle,
+      userId: (req as any).user?.id || 'default-user',
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    let scriptRecord = null;
+    if (rawText && typeof rawText === 'string') {
+      const scriptId = randomUUID();
+      const safeName = fileName || `${cleanTitle.toLowerCase().replace(/\s+/g, '_')}.${fileType || 'fountain'}`;
+      const format = (fileType || 'fountain').toLowerCase() === 'pdf' ? 'pdf' : (fileType || 'fountain').toLowerCase() === 'txt' ? 'txt' : 'fountain';
+      const textBuffer = Buffer.from(rawText, 'utf-8');
+
+      const parsed = await parseScreenplay(textBuffer, format as any, safeName);
+      tempStore.saveParsedScreenplay(scriptId, parsed);
+
+      await repository.saveScript({
+        id: scriptId,
+        projectId,
+        fileName: safeName,
+        fileType: format,
+        fileSize: textBuffer.length,
+        title: parsed.title || cleanTitle,
+        status: 'uploaded',
+        uploadedAt: now,
+      });
+
+      for (const scene of parsed.scenes) {
+        await repository.saveScene({
+          id: scene.id,
+          scriptId,
+          sceneNumber: scene.sceneNumber,
+          heading: scene.heading,
+          startLine: scene.startLine,
+          endLine: scene.endLine,
+          pageNumber: scene.pageNumber,
+          rawText: scene.elements.map((e) => e.text).join('\n'),
+        });
+      }
+
+      scriptRecord = {
+        id: scriptId,
+        fileName: safeName,
+        fileType: format,
+        title: parsed.title || cleanTitle,
+        uploadedAt: now,
+      };
+    }
+
+    res.status(201).json({
+      success: true,
+      project: {
+        id: projectId,
+        title: cleanTitle,
+        studio: studio || 'Studio Alpha',
+        script: scriptRecord,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 /**
  * GET /api/projects

@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import authRouter from './auth';
 import scriptsRouter from './scripts';
 import analysisRouter from './analysis';
 import projectsRouter from './projects';
@@ -43,6 +44,7 @@ apiRouter.get('/ready', async (_req: Request, res: Response) => {
 // Non-sensitive system status endpoint
 apiRouter.get('/status', (_req: Request, res: Response) => {
   res.json({
+    status: 'healthy',
     service: 'cineshield-backend',
     environment: process.env.NODE_ENV || 'development',
     uptimeSeconds: Math.floor(process.uptime()),
@@ -53,6 +55,7 @@ apiRouter.get('/status', (_req: Request, res: Response) => {
 });
 
 // Mount microservice API modules
+apiRouter.use('/auth', authRouter);
 apiRouter.use('/scripts', scriptsRouter);
 apiRouter.use('/analysis', analysisRouter);
 apiRouter.use('/projects', projectsRouter);

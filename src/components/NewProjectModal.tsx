@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import { apiFetch } from '../lib/authClient';
 
 interface NewProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onProjectCreated: (projectId: string, scriptId: string, analysisId?: string) => void;
 }
+
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB industry limit
+const ALLOWED_EXTENSIONS = ['.fountain', '.txt', '.pdf'];
 
 export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   isOpen,
@@ -18,16 +22,62 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   if (!isOpen) return null;
 
+  const validateAndSetFile = (selectedFile: File) => {
+    setError(null);
+
+    // 1. Check file size
+    if (selectedFile.size === 0) {
+      setError('Selected file is empty (0 bytes). Please select a valid screenplay.');
+      return false;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      setError(`File exceeds the 50MB maximum upload limit (${(selectedFile.size / (1024 * 1024)).toFixed(1)}MB).`);
+      return false;
+    }
+
+    // 2. Check extension
+    const ext = selectedFile.name.substring(selectedFile.name.lastIndexOf('.')).toLowerCase();
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
+      setError(`Unsupported file type (${ext || 'none'}). CineShield accepts .fountain, .txt, or .pdf.`);
+      return false;
+    }
+
+    setFile(selectedFile);
+    if (!title) {
+      // Strip extension for default title
+      setTitle(selectedFile.name.replace(/\.[^/.]+$/, ''));
+    }
+    return true;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      if (!title) {
-        // Strip extension for default title
-        setTitle(e.target.files[0].name.replace(/\.[^/.]+$/, ''));
-      }
+      validateAndSetFile(e.target.files[0]);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      validateAndSetFile(e.dataTransfer.files[0]);
     }
   };
 
@@ -51,21 +101,26 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
       formData.append('title', title.trim());
 
       if (file) {
-        formData.append('script', file);
+        formData.append('file', file);
       } else {
-        const textBlob = new Blob([scriptText], { type: 'text/plain' });
-        formData.append('script', textBlob, `${title.trim().toLowerCase().replace(/\s+/g, '_')}.fountain`);
+        // Sanitize suspicious script tags from manual text paste
+        let sanitizedText = scriptText;
+        if (/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(sanitizedText)) {
+          sanitizedText = sanitizedText.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+        }
+        const textBlob = new Blob([sanitizedText], { type: 'text/plain' });
+        formData.append('file', textBlob, `${title.trim().toLowerCase().replace(/\s+/g, '_')}.fountain`);
       }
 
-      // Step 1: Upload and parse script
-      const uploadRes = await fetch('/api/scripts/upload', {
+      // Step 1: Upload and parse script using apiFetch
+      const uploadRes = await apiFetch('/api/scripts/upload', {
         method: 'POST',
         body: formData,
       });
 
       if (!uploadRes.ok) {
-        const errJson = await uploadRes.json();
-        throw new Error(errJson.error?.message || 'Failed to upload script.');
+        const errJson = await uploadRes.json().catch(() => ({}));
+        throw new Error(errJson.error?.message || `Failed to upload script (Status ${uploadRes.status}).`);
       }
 
       const uploadData = await uploadRes.json();
@@ -77,7 +132,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
       // Step 2: Start automated clearance analysis
       let analysisId = '';
       try {
-        const analysisRes = await fetch('/api/analysis/start', {
+        const analysisRes = await apiFetch('/api/analysis/start', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -109,15 +164,15 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-xl bg-surface border border-outline-variant no-radius relative overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-3 sm:p-4">
+      <div className="w-full max-w-xl max-h-[92vh] overflow-y-auto bg-surface border border-outline-variant no-radius relative shadow-2xl">
         {/* Forensic Scanner bar at top */}
         <div className="h-1 w-full bg-surface-container-high relative overflow-hidden">
           {isUploading && <div className="scanner-bar" />}
         </div>
 
         {/* Modal Header */}
-        <div className="p-6 border-b border-outline-variant flex items-center justify-between">
+        <div className="p-4 sm:p-6 border-b border-outline-variant flex items-center justify-between sticky top-0 bg-surface z-10">
           <div className="flex items-center gap-3">
             <span className="material-symbols-outlined text-primary text-2xl">
               upload_file
@@ -141,7 +196,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleUploadAndAnalyze} className="p-6 space-y-4">
+        <form onSubmit={handleUploadAndAnalyze} className="p-4 sm:p-6 space-y-4">
           {error && (
             <div className="bg-error-container text-on-error-container p-3 no-radius font-body-md text-xs flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">error</span>
@@ -183,12 +238,21 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             </select>
           </div>
 
-          {/* File Upload Area */}
+          {/* File Upload Area with Drag and Drop */}
           <div>
             <label className="block font-label-caps text-label-caps text-on-surface mb-1">
               Upload Script (.fountain, .pdf, .txt)
             </label>
-            <div className="border-2 border-dashed border-outline-variant p-6 text-center bg-surface-container-lowest hover:border-primary transition-colors cursor-pointer relative">
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed p-6 text-center transition-colors cursor-pointer relative ${
+                isDragging
+                  ? 'border-primary bg-primary/10'
+                  : 'border-outline-variant bg-surface-container-lowest hover:border-primary'
+              }`}
+            >
               <input
                 type="file"
                 accept=".fountain,.txt,.pdf"
@@ -197,13 +261,13 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
               <span className="material-symbols-outlined text-3xl text-primary mb-2">
-                cloud_upload
+                {isDragging ? 'download' : 'cloud_upload'}
               </span>
               <p className="font-label-caps text-label-caps text-on-surface">
-                {file ? file.name : 'DRAG SCREENPLAY FILE HERE OR CLICK TO BROWSE'}
+                {file ? file.name : (isDragging ? 'RELEASE TO UPLOAD SCREENPLAY' : 'DRAG SCREENPLAY FILE HERE OR CLICK TO BROWSE')}
               </p>
               <p className="font-body-md text-[11px] text-on-surface-variant mt-1">
-                Supports Standard Industry Fountain, Text, or PDF format
+                Supports Standard Industry Fountain, Text, or PDF format (Max 50MB)
               </p>
             </div>
           </div>

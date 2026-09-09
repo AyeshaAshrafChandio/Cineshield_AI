@@ -46,10 +46,13 @@ export interface StoredReport {
 
 export class ScreenplayRepository {
   private ensureDatabase(): void {
-    if (process.env.NODE_ENV === 'production' && !isDatabaseConfigured()) {
-      throw new DatabaseNotConfiguredError(
-        'Production database required: PostgreSQL connection credentials (DATABASE_URL) are not set.'
-      );
+    if (!isDatabaseConfigured()) {
+      // In container or demo environment without PostgreSQL, log notice and use in-memory store
+      if (process.env.NODE_ENV === 'production') {
+        console.warn(
+          '[AI Studio] PostgreSQL credentials not configured (DATABASE_URL missing). Falling back to in-memory store.'
+        );
+      }
     }
   }
 

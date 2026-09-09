@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PageId } from '../types/frontend';
+import { apiFetch } from '../lib/authClient';
 
 interface SystemStatusPageProps {
   onNavigate: (page: PageId) => void;
@@ -15,8 +16,8 @@ export const SystemStatusPage: React.FC<SystemStatusPageProps> = ({ onNavigate }
     const fetchStatus = async () => {
       try {
         const [statRes, healthRes] = await Promise.all([
-          fetch('/api/status'),
-          fetch('/api/ready'),
+          apiFetch('/api/status'),
+          apiFetch('/api/ready'),
         ]);
 
         if (statRes.ok) {
@@ -48,7 +49,7 @@ export const SystemStatusPage: React.FC<SystemStatusPageProps> = ({ onNavigate }
   const barHeights = [40, 65, 30, 85, 45, 70, 90, 55, 35, 60, 75, 50, 65, 80, 45, 95, 60, 40, 85, 55, 70];
 
   return (
-    <main className="ml-60 pt-16 p-margin-desktop bg-[#0A0A0A] min-h-[calc(100vh-64px)] flex-1 overflow-y-auto">
+    <main className="md:ml-60 ml-0 pt-16 p-4 md:p-margin-desktop bg-[#0A0A0A] min-h-[calc(100vh-64px)] flex-1 overflow-y-auto">
       <div className="max-w-container-max mx-auto h-full flex flex-col">
         {/* Header */}
         <header className="mb-gutter flex justify-between items-end">
