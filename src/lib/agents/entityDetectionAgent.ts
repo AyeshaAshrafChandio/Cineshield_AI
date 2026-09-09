@@ -226,23 +226,8 @@ Be thorough, precise, and objective. Extract the exact sourceText snippet from t
       }
     }
 
-    // 3. Fallback to first scene if elements matched loosely
-    const fallbackScene = scenes[0];
-    const fallbackElement = fallbackScene?.elements[0];
-
-    return {
-      id: randomUUID(),
-      entity: cleanEntity,
-      type: item.type as EntityType,
-      sourceText: item.sourceText || cleanEntity,
-      location: fallbackScene?.heading || 'Screenplay Excerpt',
-      sceneId: fallbackScene?.id || randomUUID(),
-      elementId: fallbackElement?.id || randomUUID(),
-      startOffset: fallbackElement?.startOffset ?? 0,
-      endOffset: fallbackElement?.endOffset ?? (item.sourceText || cleanEntity).length,
-      confidence: Number(Math.max(0, Math.min(1, item.confidence)).toFixed(2)),
-      occurrencesCount: 1,
-    };
+    // 3. If the entity could not be verified in any screenplay scene element, do not fabricate a location
+    return null;
   }
 
   /**

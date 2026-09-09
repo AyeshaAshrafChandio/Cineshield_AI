@@ -195,7 +195,7 @@ Scoring Guidelines:
   }
 
   /**
-   * Evaluates a collection of entities in parallel batches
+   * Evaluates a collection of entities in batches
    */
   async analyzeEntitiesBatch(
     entities: DetectedEntity[],
@@ -203,17 +203,17 @@ Scoring Guidelines:
     evidenceMap: Map<string, PartnerEvidenceResult>
   ): Promise<RiskAnalysisResult[]> {
     const results: RiskAnalysisResult[] = [];
-    const BATCH_SIZE = 3;
+    const BATCH_SIZE = 4;
 
     for (let i = 0; i < entities.length; i += BATCH_SIZE) {
       const batch = entities.slice(i, i + BATCH_SIZE);
-      const promises = batch.map((entity) => {
+      const batchPromises = batch.map(async (entity) => {
         const sceneContext = sceneContextMap.get(entity.sceneId) || entity.sourceText;
         const evidence = evidenceMap.get(entity.id);
-        return this.analyzeEntity(entity, sceneContext, evidence);
+        return await this.analyzeEntity(entity, sceneContext, evidence);
       });
 
-      const batchResults = await Promise.all(promises);
+      const batchResults = await Promise.all(batchPromises);
       results.push(...batchResults);
     }
 

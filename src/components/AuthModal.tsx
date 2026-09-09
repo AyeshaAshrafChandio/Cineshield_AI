@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { UserSession, setStoredUser, apiFetch } from '../lib/authClient';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleAuthProvider } from '../lib/firebase';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -10,6 +12,7 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<'admin' | 'counsel' | 'producer' | 'auditor'>('counsel');
   const [clearance, setClearance] = useState<'LEVEL_03' | 'LEVEL_04' | 'LEVEL_05'>('LEVEL_04');
@@ -19,24 +22,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
   if (!isOpen) return null;
 
-  const handleQuickLogin = async (executiveEmail: string) => {
+  const handleGoogleSignIn = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await apiFetch('/api/auth/login', {
+      const cred = await signInWithPopup(auth, googleAuthProvider);
+      const idToken = await cred.user.getIdToken();
+      const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: executiveEmail }),
+        body: JSON.stringify({ idToken }),
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error?.message || 'Authentication failed.');
+        throw new Error(data.error?.message || 'Google sign-in failed on server.');
       }
-      setStoredUser(data.user);
-      if (onSuccess) onSuccess(data.user);
+      const loggedInUser: UserSession = {
+        ...data.user,
+        token: data.token,
+      };
+      setStoredUser(loggedInUser);
+      if (onSuccess) onSuccess(loggedInUser);
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Login failed.');
+      setError(err.message || 'Google authentication failed.');
     } finally {
       setLoading(false);
     }
@@ -50,20 +59,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     try {
       if (mode === 'login') {
         if (!email.trim()) throw new Error('Please provide an email address.');
+        if (!password.trim()) throw new Error('Please provide your password.');
         const res = await apiFetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email.trim() }),
+          body: JSON.stringify({
+            email: email.trim(),
+            password: password.trim(),
+          }),
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
           throw new Error(data.error?.message || 'Login failed.');
         }
-        setStoredUser(data.user);
+        setStoredUser({
+          ...data.user,
+          token: data.token,
+        });
         if (onSuccess) onSuccess(data.user);
       } else {
         if (!email.trim() || !name.trim()) {
           throw new Error('Name and email are required for registration.');
+        }
+        if (!password.trim() || password.length < 6) {
+          throw new Error('Password must be at least 6 characters.');
         }
         const res = await apiFetch('/api/auth/signup', {
           method: 'POST',
@@ -74,13 +93,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             role,
             clearance,
             studio: studio.trim() || 'Studio Alpha',
+            password: password.trim(),
           }),
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
           throw new Error(data.error?.message || 'Sign up failed.');
         }
-        setStoredUser(data.user);
+        setStoredUser({
+          ...data.user,
+          token: data.token,
+        });
         if (onSuccess) onSuccess(data.user);
       }
       onClose();
@@ -120,42 +143,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           </button>
         </div>
 
-        {/* Quick Demo Identities */}
-        <div className="p-4 bg-surface-container border-b border-outline-variant">
-          <span className="text-[10px] font-label-caps uppercase tracking-wider text-outline block mb-2 font-bold">
-            Executive Demo Identities (1-Click Login):
-          </span>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('j.vane@studioalpha.com')}
-              disabled={loading}
-              className="text-left p-2 bg-surface-container-high border border-outline-variant hover:border-primary transition-colors cursor-pointer text-xs"
-            >
-              <div className="font-bold text-on-surface text-[11px] truncate">Julian Vane</div>
-              <div className="text-[9px] text-primary font-mono">CLO • L5</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('m.thorne@studioalpha.com')}
-              disabled={loading}
-              className="text-left p-2 bg-surface-container-high border border-outline-variant hover:border-primary transition-colors cursor-pointer text-xs"
-            >
-              <div className="font-bold text-on-surface text-[11px] truncate">Marcus Thorne</div>
-              <div className="text-[9px] text-primary font-mono">Forensics • L5</div>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickLogin('s.jenkins@studioalpha.com')}
-              disabled={loading}
-              className="text-left p-2 bg-surface-container-high border border-outline-variant hover:border-primary transition-colors cursor-pointer text-xs"
-            >
-              <div className="font-bold text-on-surface text-[11px] truncate">Sarah Jenkins</div>
-              <div className="text-[9px] text-primary font-mono">Counsel • L4</div>
-            </button>
-          </div>
-        </div>
-
         {/* Tab switch */}
         <div className="flex border-b border-outline-variant">
           <button
@@ -189,13 +176,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 space-y-4">
+        <div className="p-5 space-y-4">
           {error && (
             <div className="bg-error-container text-on-error-container p-3 no-radius text-xs flex items-center gap-2">
               <span className="material-symbols-outlined text-sm">error</span>
               <span>{error}</span>
             </div>
           )}
+
+          {/* Quick Google Sign In via Firebase Auth */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full py-2.5 px-4 bg-surface-container-highest border border-outline-variant hover:border-primary text-on-surface text-xs font-label-caps flex items-center justify-center gap-3 transition-colors cursor-pointer"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
+              <path
+                fill="#EA4335"
+                d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"
+              />
+              <path
+                fill="#4285F4"
+                d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15.2s.7 5.5 1.9 7.9l3.7-2.9c-.4-.7-.8-1.5-.8-2.4z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23.5c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16.5C3.7 20.2 7.5 23.5 12 23.5z"
+              />
+            </svg>
+            <span className="font-bold">SIGN IN WITH GOOGLE WORKSPACE</span>
+          </button>
+
+          <div className="flex items-center gap-3 my-2">
+            <div className="flex-1 h-px bg-outline-variant" />
+            <span className="text-[10px] font-mono text-outline uppercase tracking-wider">OR STUDIO CREDENTIALS</span>
+            <div className="flex-1 h-px bg-outline-variant" />
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
 
           {mode === 'signup' && (
             <div>
@@ -224,6 +247,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
               onChange={(e) => setEmail(e.target.value)}
               placeholder="e.g., counsel@studio.com"
               className="w-full bg-surface-container-high border border-outline-variant focus:border-primary px-3 py-2 text-on-surface text-xs"
+            />
+          </div>
+
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[11px] font-label-caps uppercase tracking-wider text-outline font-bold">
+                Passcode / Password {mode === 'login' ? '(Studio Credentials)' : '(Min 6 chars)'}
+              </label>
+            </div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="w-full bg-surface-container-high border border-outline-variant focus:border-primary px-3 py-2 text-on-surface text-xs font-mono"
             />
           </div>
 
@@ -296,5 +334,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         </form>
       </div>
     </div>
-  );
+  </div>
+);
 };

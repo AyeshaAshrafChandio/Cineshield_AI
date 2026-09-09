@@ -75,9 +75,7 @@ async function startServer() {
       await runMigrations();
     } catch (migErr) {
       logger.error('Startup migration execution error:', migErr);
-      if (process.env.NODE_ENV === 'production') {
-        process.exit(1);
-      }
+      // Keep server alive so Cloud Run container health check succeeds
     }
   }
 

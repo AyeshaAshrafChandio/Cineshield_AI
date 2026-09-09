@@ -110,10 +110,10 @@ router.post('/start', async (req: Request, res: Response, next: NextFunction) =>
 });
 
 /**
- * GET /api/analysis/:id
+ * GET /api/analysis/:id and GET /api/analysis/:id/status
  * Retrieve real-time backend state of an analysis run
  */
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+const getAnalysisStatusHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const parseResult = uuidSchema.safeParse(req.params.id);
     if (!parseResult.success) {
@@ -128,6 +128,8 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
       throw new NotFoundError('Analysis', analysisId);
     }
 
+    const findings = await repository.getFindings(analysisId);
+
     const response: AnalysisStatusResponse = {
       success: true,
       analysisId: run.id,
@@ -140,13 +142,17 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
       updatedAt: run.updatedAt,
       completedAt: run.completedAt,
       errorMessage: run.errorMessage,
+      findingsCount: findings.length,
     };
 
     res.json(response);
   } catch (error) {
     next(error);
   }
-});
+};
+
+router.get('/:id', getAnalysisStatusHandler);
+router.get('/:id/status', getAnalysisStatusHandler);
 
 /**
  * GET /api/analysis/:id/stream
@@ -263,6 +269,38 @@ router.get('/:id/evidence', async (req: Request, res: Response, next: NextFuncti
       analysisId,
       evidence: evidenceList,
       total: evidenceList.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * GET /api/analysis/:id/entities
+ * Retrieve detected entities (characters, locations, brands, props) for an analysis run
+ */
+router.get('/:id/entities', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const parseResult = uuidSchema.safeParse(req.params.id);
+    if (!parseResult.success) {
+      throw new ValidationError('Invalid analysis ID format.');
+    }
+    const analysisId = parseResult.data;
+
+    await authorizeAnalysis(req, analysisId);
+
+    const run = await repository.getAnalysisRun(analysisId);
+    if (!run) {
+      throw new NotFoundError('Analysis', analysisId);
+    }
+
+    const entitiesList = await repository.getEntities(analysisId);
+
+    res.json({
+      success: true,
+      analysisId,
+      entities: entitiesList,
+      total: entitiesList.length,
     });
   } catch (error) {
     next(error);

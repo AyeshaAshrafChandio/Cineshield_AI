@@ -7,7 +7,7 @@ interface AdminPageProps {
 }
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
-  const [activeTab, setActiveTab] = useState<'infrastructure' | 'models' | 'audit' | 'keys'>('infrastructure');
+  const [activeTab, setActiveTab] = useState<'infrastructure' | 'models' | 'audit'>('infrastructure');
   const [clusterStatus, setClusterStatus] = useState({
     activeNodes: 8,
     totalNodes: 8,
@@ -16,7 +16,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
     latencyMs: 18,
     status: 'OPTIMAL',
   });
-  const [apiKeyVisible, setApiKeyVisible] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -104,16 +103,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
             }`}
           >
             Clearance Audit Logs
-          </button>
-          <button
-            onClick={() => setActiveTab('keys')}
-            className={`px-6 py-3 font-label-caps text-xs tracking-wider uppercase cursor-pointer border-b-2 transition-all ${
-              activeTab === 'keys'
-                ? 'border-primary text-primary bg-surface-container-high'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            API Credentials &amp; Tenancy
           </button>
         </div>
 
@@ -261,52 +250,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                   <span className="text-outline text-[11px]">VERIFIED</span>
                 </div>
               ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tab 4: API & Tenancy */}
-        {activeTab === 'keys' && (
-          <div className="bg-surface-container border border-outline-variant p-6 space-y-6">
-            <h3 className="font-label-caps text-sm text-on-surface uppercase font-bold">
-              Tenant &amp; API Configuration
-            </h3>
-            <div className="max-w-xl space-y-4 font-body-md text-xs">
-              <div>
-                <label className="block text-outline uppercase font-label-caps mb-1">Current Tenant ID</label>
-                <input
-                  type="text"
-                  readOnly
-                  value="tenant-studio-alpha"
-                  className="w-full bg-surface-container-high border border-outline-variant p-2 text-on-surface"
-                />
-              </div>
-              <div>
-                <label className="block text-outline uppercase font-label-caps mb-1">Gemini AI Model Alias</label>
-                <input
-                  type="text"
-                  readOnly
-                  value="gemini-3.6-flash (Server-Side Managed)"
-                  className="w-full bg-surface-container-high border border-outline-variant p-2 text-primary"
-                />
-              </div>
-              <div>
-                <label className="block text-outline uppercase font-label-caps mb-1">Clearance Token</label>
-                <div className="flex gap-2">
-                  <input
-                    type={apiKeyVisible ? 'text' : 'password'}
-                    readOnly
-                    value="csk_live_9949_4fe8_be01_4d45fbff272b"
-                    className="flex-1 bg-surface-container-high border border-outline-variant p-2 text-on-surface"
-                  />
-                  <button
-                    onClick={() => setApiKeyVisible(!apiKeyVisible)}
-                    className="px-3 bg-surface-container-high border border-outline-variant text-on-surface hover:text-primary cursor-pointer"
-                  >
-                    {apiKeyVisible ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         )}

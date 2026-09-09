@@ -4,7 +4,7 @@ import { secretsManager } from '../security/secrets';
 
 const configuredModel = secretsManager.getSecret('GEMINI_MODEL');
 export const GEMINI_MODEL =
-  configuredModel && !configuredModel.includes('2.5') ? configuredModel : 'gemini-3.6-flash';
+  configuredModel && !configuredModel.includes('2.5') ? configuredModel : 'gemini-3.8-flash';
 
 /**
  * Validates if a valid GEMINI_API_KEY is configured in the environment or secrets manager

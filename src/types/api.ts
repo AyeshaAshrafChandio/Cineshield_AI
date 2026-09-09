@@ -55,6 +55,7 @@ export interface AnalysisStatusResponse {
   updatedAt: string;
   completedAt?: string | null;
   errorMessage?: string | null;
+  findingsCount?: number;
 }
 
 export interface ProjectInfoResponse {

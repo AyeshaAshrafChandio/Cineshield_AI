@@ -61,12 +61,21 @@ export class SecretsManager {
     return this.getSecret('IBM_WATSONX_PROJECT_ID') || null;
   }
 
+  getJwtSecret(): string | null {
+    return this.getSecret('JWT_SECRET') || this.getSecret('SESSION_SECRET') || null;
+  }
+
   getSessionSecret(): string {
-    const secret = this.getSecret('SESSION_SECRET');
-    if (!secret && process.env.NODE_ENV === 'production') {
-      console.warn('WARNING: SESSION_SECRET is not configured in production. Set SESSION_SECRET via Secret Manager.');
+    const secret = this.getJwtSecret();
+    if (!secret) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+          'FATAL SECURITY CONFIGURATION: JWT_SECRET environment variable is missing. A secure production secret is required for cryptographic authentication.'
+        );
+      }
+      return 'cineshield-dev-secret-key-32chars-min!!';
     }
-    return secret || 'cineshield-dev-secret-key-32chars-min!!';
+    return secret;
   }
 
   /**
@@ -80,8 +89,15 @@ export class SecretsManager {
     }
 
     if (process.env.NODE_ENV === 'production') {
-      if (!this.getDatabaseUrl()) {
-        missing.push('DATABASE_URL');
+      const hasDb = Boolean(
+        this.getDatabaseUrl() ||
+        (this.getSecret('SQL_HOST') && this.getSecret('SQL_USER') && this.getSecret('SQL_PASSWORD'))
+      );
+      if (!hasDb) {
+        missing.push('SQL_CREDENTIALS');
+      }
+      if (!this.getJwtSecret()) {
+        missing.push('JWT_SECRET');
       }
     }
 

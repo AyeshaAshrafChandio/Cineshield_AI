@@ -93,6 +93,12 @@ export const ForensicsPage: React.FC<ForensicsPageProps> = ({
     fetchProjects();
   }, [projectId]);
 
+  useEffect(() => {
+    if (projectId && projectId !== selectedProjectId) {
+      setSelectedProjectId(projectId);
+    }
+  }, [projectId]);
+
   // Load report / findings for selected project
   useEffect(() => {
     if (!selectedProjectId) {

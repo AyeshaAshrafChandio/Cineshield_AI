@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageId } from '../types/frontend';
+import { apiFetch } from '../lib/authClient';
 
 interface TeamPageProps {
   onNavigate: (page: PageId) => void;
@@ -8,62 +9,67 @@ interface TeamPageProps {
 interface TeamMember {
   id: string;
   name: string;
+  email?: string;
   role: string;
   clearance: string;
   status: 'Active' | 'Pending' | 'Offline';
 }
 
 export const TeamPage: React.FC<TeamPageProps> = ({ onNavigate }) => {
-  const [members, setMembers] = useState<TeamMember[]>([
-    {
-      id: 'tm-1',
-      name: 'Sarah Jenkins',
-      role: 'Senior Counsel',
-      clearance: 'LEVEL_04',
-      status: 'Active',
-    },
-    {
-      id: 'tm-2',
-      name: 'Marcus Thorne',
-      role: 'Forensic Lead',
-      clearance: 'LEVEL_05',
-      status: 'Active',
-    },
-    {
-      id: 'tm-3',
-      name: 'Elena Rossi',
-      role: 'Studio Head',
-      clearance: 'LEVEL_05',
-      status: 'Pending',
-    },
-    {
-      id: 'tm-4',
-      name: 'Julian Vane',
-      role: 'Chief Legal Officer',
-      clearance: 'LEVEL_05',
-      status: 'Active',
-    },
-  ]);
-
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberEmail, setNewMemberEmail] = useState('');
   const [newMemberRole, setNewMemberRole] = useState('Production Counsel');
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleInvite = (e: React.FormEvent) => {
+  const loadTeam = async () => {
+    try {
+      const res = await apiFetch('/api/auth/team');
+      if (res.ok) {
+        const data = await res.json();
+        setMembers(data.members || []);
+      }
+    } catch (err) {
+      console.warn('Failed to load team:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTeam();
+  }, []);
+
+  const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMemberName.trim()) return;
-    setMembers([
-      ...members,
-      {
-        id: `tm-${Date.now()}`,
-        name: newMemberName.trim(),
-        role: newMemberRole,
-        clearance: 'LEVEL_03',
-        status: 'Pending',
-      },
-    ]);
-    setNewMemberName('');
-    setShowInviteModal(false);
+
+    setSubmitting(true);
+    try {
+      const res = await apiFetch('/api/auth/team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newMemberName.trim(),
+          email: newMemberEmail.trim() || undefined,
+          role: newMemberRole,
+          clearance: 'LEVEL_04',
+        }),
+      });
+
+      if (res.ok) {
+        await loadTeam();
+        setNewMemberName('');
+        setNewMemberEmail('');
+        setShowInviteModal(false);
+      }
+    } catch (err) {
+      console.error('Failed to invite member:', err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -130,7 +136,14 @@ export const TeamPage: React.FC<TeamPageProps> = ({ onNavigate }) => {
                     <td className="py-4 px-3 text-right">
                       <button
                         title="Remove member"
-                        onClick={() => setMembers(members.filter((m) => m.id !== member.id))}
+                        onClick={async () => {
+                          try {
+                            await apiFetch(`/api/auth/team/${member.id}`, { method: 'DELETE' });
+                            setMembers((prev) => prev.filter((m) => m.id !== member.id));
+                          } catch (err) {
+                            console.error('Failed to remove team member:', err);
+                          }
+                        }}
                         className="text-outline hover:text-error transition-colors p-1 cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-base">delete</span>

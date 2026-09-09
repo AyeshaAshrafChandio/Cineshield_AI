@@ -166,8 +166,27 @@ export const SceneViewerPage: React.FC<SceneViewerPageProps> = ({
   };
 
   useEffect(() => {
+    if (projectId && projectId !== selectedProjectId) {
+      setSelectedProjectId(projectId);
+    }
+  }, [projectId]);
+
+  useEffect(() => {
     loadProjectData();
   }, [selectedProjectId]);
+
+  const isScanning =
+    project?.analysisStatus === 'queued' ||
+    project?.analysisStatus === 'extracting_entities' ||
+    project?.analysisStatus === 'risk_analysis';
+
+  useEffect(() => {
+    if (!isScanning) return;
+    const interval = setInterval(() => {
+      loadProjectData();
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [isScanning, selectedProjectId]);
 
   // Handler to trigger clearance analysis on demand
   const handleTriggerAnalysis = async () => {
@@ -245,11 +264,6 @@ export const SceneViewerPage: React.FC<SceneViewerPageProps> = ({
   const trademarkWarnings = findings.filter(
     (f) => f.category.toLowerCase().includes('trademark') || f.category.toLowerCase().includes('brand')
   ).length;
-
-  const isScanning =
-    project?.analysisStatus === 'queued' ||
-    project?.analysisStatus === 'extracting_entities' ||
-    project?.analysisStatus === 'risk_analysis';
 
   return (
     <div className="flex flex-col xl:flex-row pt-16 min-h-screen bg-[#0A0A0A]">

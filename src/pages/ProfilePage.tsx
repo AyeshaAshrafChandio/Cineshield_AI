@@ -9,7 +9,7 @@ interface ProfilePageProps {
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth }) => {
   const [user, setUser] = useState<UserSession | null>(getStoredUser());
-  const [activeTab, setActiveTab] = useState<'account' | 'security' | 'preferences' | 'api'>('account');
+  const [activeTab, setActiveTab] = useState<'account' | 'security' | 'preferences'>('account');
   const [criticalRiskAlerts, setCriticalRiskAlerts] = useState(true);
   const [dailyDigest, setDailyDigest] = useState(false);
   const [backupEmail, setBackupEmail] = useState('legal.secure@cineshield.ai');
@@ -24,9 +24,23 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
     return unsubscribe;
   }, []);
 
-  const handleSave = () => {
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+  const handleSave = async () => {
+    try {
+      if (user?.email) {
+        await apiFetch('/api/auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            studio: user.studio,
+            clearance: user.clearance,
+          }),
+        });
+      }
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    } catch (err) {
+      console.error('Failed to update profile:', err);
+    }
   };
 
   const handleLogout = async () => {
@@ -153,16 +167,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
           >
             Alerts &amp; Preferences
           </button>
-          <button
-            onClick={() => setActiveTab('api')}
-            className={`px-6 py-3 font-label-caps text-xs tracking-wider uppercase cursor-pointer border-b-2 transition-all ${
-              activeTab === 'api'
-                ? 'border-primary text-primary bg-surface-container-high'
-                : 'border-transparent text-on-surface-variant hover:text-on-surface'
-            }`}
-          >
-            API Credentials
-          </button>
         </div>
 
         {/* Tab 1: Account */}
@@ -254,15 +258,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
         {activeTab === 'security' && (
           <div className="bg-surface-container border border-outline-variant p-6 space-y-6">
             <h3 className="font-label-caps text-sm text-on-surface uppercase font-bold">
-              Two-Factor Authentication &amp; Hardware Key
+              Two-Factor Authentication &amp; Multi-Factor Security
             </h3>
             <p className="text-xs text-on-surface-variant">
-              Hardware FIDO2 Security Key (YubiKey 5C) active for Level 05 Clearance Signatures.
+              Hardware FIDO2 Security Authenticator active for Level 05 Clearance Signatures.
             </p>
             <div className="p-4 bg-surface-container-high border border-primary/40 flex items-center justify-between">
               <div>
-                <span className="font-bold text-sm text-on-surface">FIDO2 Hardware Key</span>
-                <p className="text-xs text-outline mt-1">Key ID: YK-88192-CS-ROOT (Linked to Studio Vault)</p>
+                <span className="font-bold text-sm text-on-surface">FIDO2 Multi-Factor Authenticator</span>
+                <p className="text-xs text-outline mt-1">Verified Hardware Authenticator • Studio Vault Secured</p>
               </div>
               <span className="px-3 py-1 bg-primary/20 text-primary text-xs font-label-caps font-bold">ACTIVE</span>
             </div>
@@ -278,24 +282,6 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ onNavigate, onOpenAuth
             <p className="text-xs text-on-surface-variant">
               Default high-contrast Studio Dark display profile enabled. Radical square typography paired with JetBrains Mono.
             </p>
-          </div>
-        )}
-
-        {/* Tab 4: API */}
-        {activeTab === 'api' && (
-          <div className="bg-surface-container border border-outline-variant p-6 space-y-4">
-            <h3 className="font-label-caps text-sm text-on-surface uppercase font-bold">
-              User API Clearance Key
-            </h3>
-            <p className="text-xs text-on-surface-variant">
-              Individual developer tokens for command-line screenplay ingestion.
-            </p>
-            <input
-              type="text"
-              readOnly
-              value="csk_usr_vane_005_9a1288b4009"
-              className="w-full max-w-lg bg-surface-container-high border border-outline-variant p-2 text-primary text-xs font-mono"
-            />
           </div>
         )}
       </div>

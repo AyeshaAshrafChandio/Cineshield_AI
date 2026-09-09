@@ -42,31 +42,27 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       const textBuffer = Buffer.from(rawText, 'utf-8');
 
       const parsed = await parseScreenplay(textBuffer, format as any, safeName);
-      tempStore.saveParsedScreenplay(scriptId, parsed);
+      await repository.saveScreenplay(scriptId, parsed);
 
-      await repository.saveScript({
-        id: scriptId,
-        projectId,
-        fileName: safeName,
-        fileType: format,
-        fileSize: textBuffer.length,
-        title: parsed.title || cleanTitle,
-        status: 'uploaded',
-        uploadedAt: now,
-      });
-
-      for (const scene of parsed.scenes) {
-        await repository.saveScene({
-          id: scene.id,
-          scriptId,
-          sceneNumber: scene.sceneNumber,
-          heading: scene.heading,
-          startLine: scene.startLine,
-          endLine: scene.endLine,
-          pageNumber: scene.pageNumber,
-          rawText: scene.elements.map((e) => e.text).join('\n'),
-        });
-      }
+      await repository.saveScript(
+        {
+          id: scriptId,
+          projectId,
+          fileName: safeName,
+          fileType: format,
+          fileSize: textBuffer.length,
+          title: parsed.title || cleanTitle,
+          status: 'uploaded',
+          uploadedAt: now,
+        },
+        {
+          totalScenes: parsed.metadata.totalScenes,
+          totalElements: parsed.metadata.totalElements,
+          estimatedDurationMinutes: parsed.metadata.estimatedDurationMinutes,
+          characters: parsed.metadata.characters,
+          locations: parsed.metadata.locations,
+        }
+      );
 
       scriptRecord = {
         id: scriptId,

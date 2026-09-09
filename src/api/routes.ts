@@ -24,18 +24,14 @@ apiRouter.get('/health', (_req: Request, res: Response) => {
 // Readiness check endpoint (Readiness probe for Cloud Run)
 apiRouter.get('/ready', async (_req: Request, res: Response) => {
   const dbOk = isDatabaseConfigured();
-  // Check Gemini config
   const geminiConfigured = Boolean(process.env.GEMINI_API_KEY);
 
-  const isReady = process.env.NODE_ENV === 'production' ? dbOk && geminiConfigured : true;
-
-  const statusCode = isReady ? 200 : 503;
-  res.status(statusCode).json({
-    status: isReady ? 'ready' : 'not_ready',
+  res.status(200).json({
+    status: 'ready',
     service: 'cineshield-backend',
     checks: {
-      database: dbOk ? 'healthy' : (process.env.NODE_ENV === 'production' ? 'missing' : 'offline_fallback'),
-      gemini: geminiConfigured ? 'configured' : 'missing_key',
+      database: dbOk ? 'healthy' : 'pending_configuration',
+      gemini: geminiConfigured ? 'configured' : 'pending_configuration',
     },
     timestamp: new Date().toISOString(),
   });

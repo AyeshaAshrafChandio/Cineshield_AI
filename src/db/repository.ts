@@ -47,10 +47,9 @@ export interface StoredReport {
 export class ScreenplayRepository {
   private ensureDatabase(): void {
     if (!isDatabaseConfigured()) {
-      // In container or demo environment without PostgreSQL, log notice and use in-memory store
-      if (process.env.NODE_ENV === 'production') {
-        console.warn(
-          '[AI Studio] PostgreSQL credentials not configured (DATABASE_URL missing). Falling back to in-memory store.'
+      if (process.env.NODE_ENV !== 'test') {
+        throw new DatabaseNotConfiguredError(
+          'PostgreSQL database persistence is not configured. DATABASE_URL environment variable is required to persist and retrieve projects, screenplays, and analysis findings. Please configure DATABASE_URL in your environment or Cloud SQL configuration.'
         );
       }
     }
@@ -98,6 +97,7 @@ export class ScreenplayRepository {
   }
 
   async getProject(id: string): Promise<StoredProject | undefined> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -107,10 +107,12 @@ export class ScreenplayRepository {
           return {
             id: row.id,
             title: row.title,
+            userId: row.userId ?? undefined,
             createdAt: row.createdAt.toISOString(),
             updatedAt: row.updatedAt.toISOString(),
           };
         }
+        return undefined;
       } catch (err) {
         console.error('Database read error (getProject):', err instanceof Error ? err.message : String(err));
         throw new DatabaseError('Failed to fetch project from PostgreSQL.');
@@ -121,29 +123,24 @@ export class ScreenplayRepository {
   }
 
   async listProjects(): Promise<StoredProject[]> {
-    const memoryProjects = tempStore.listProjects();
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
         const rows = await db.select().from(projects).orderBy(desc(projects.createdAt));
-        const map = new Map<string, StoredProject>();
-        for (const m of memoryProjects) map.set(m.id, m);
-        for (const row of rows) {
-          map.set(row.id, {
-            id: row.id,
-            title: row.title,
-            userId: row.userId,
-            createdAt: row.createdAt.toISOString(),
-            updatedAt: row.updatedAt.toISOString(),
-          });
-        }
-        return Array.from(map.values());
+        return rows.map((row) => ({
+          id: row.id,
+          title: row.title,
+          userId: row.userId ?? undefined,
+          createdAt: row.createdAt.toISOString(),
+          updatedAt: row.updatedAt.toISOString(),
+        }));
       } catch (err) {
         console.error('Database read error (listProjects):', err instanceof Error ? err.message : String(err));
-        return memoryProjects;
+        throw new DatabaseError('Failed to fetch projects from PostgreSQL database.');
       }
     }
-    return memoryProjects;
+    return tempStore.listProjects();
   }
 
   async saveScript(script: StoredScript, metadataObj?: Record<string, unknown>): Promise<void> {
@@ -181,6 +178,7 @@ export class ScreenplayRepository {
   }
 
   async getScript(id: string): Promise<StoredScript | undefined> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -198,6 +196,7 @@ export class ScreenplayRepository {
             uploadedAt: row.createdAt.toISOString(),
           };
         }
+        return undefined;
       } catch (err) {
         console.error('Database read error (getScript):', err instanceof Error ? err.message : String(err));
         throw new DatabaseError('Failed to fetch script record from PostgreSQL.');
@@ -208,6 +207,7 @@ export class ScreenplayRepository {
   }
 
   async getScriptByProject(projectId: string): Promise<StoredScript | undefined> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -230,6 +230,7 @@ export class ScreenplayRepository {
             uploadedAt: row.createdAt.toISOString(),
           };
         }
+        return undefined;
       } catch (err) {
         console.error('Database read error (getScriptByProject):', err instanceof Error ? err.message : String(err));
         throw new DatabaseError('Failed to fetch script for project from PostgreSQL.');
@@ -240,6 +241,7 @@ export class ScreenplayRepository {
   }
 
   async saveScreenplay(scriptId: string, screenplay: NormalizedScreenplay): Promise<void> {
+    this.ensureDatabase();
     tempStore.saveScreenplay(scriptId, screenplay);
 
     if (gcsStorage.isConfigured()) {
@@ -270,17 +272,7 @@ export class ScreenplayRepository {
   }
 
   async getScreenplay(scriptId: string): Promise<NormalizedScreenplay | undefined> {
-    const fromMemory = tempStore.getScreenplay(scriptId);
-    if (fromMemory) return fromMemory;
-
-    if (gcsStorage.isConfigured()) {
-      const fromGcs = await gcsStorage.downloadScreenplay(scriptId);
-      if (fromGcs) {
-        tempStore.saveScreenplay(scriptId, fromGcs);
-        return fromGcs;
-      }
-    }
-
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -288,9 +280,7 @@ export class ScreenplayRepository {
         if (rows.length > 0 && rows[0].metadata) {
           const meta = rows[0].metadata as Record<string, unknown>;
           if (meta.screenplay) {
-            const sp = meta.screenplay as NormalizedScreenplay;
-            tempStore.saveScreenplay(scriptId, sp);
-            return sp;
+            return meta.screenplay as NormalizedScreenplay;
           }
         }
       } catch (err) {
@@ -298,10 +288,21 @@ export class ScreenplayRepository {
       }
     }
 
+    if (gcsStorage.isConfigured()) {
+      const fromGcs = await gcsStorage.downloadScreenplay(scriptId);
+      if (fromGcs) {
+        return fromGcs;
+      }
+    }
+
+    const fromMemory = tempStore.getScreenplay(scriptId);
+    if (fromMemory) return fromMemory;
+
     return undefined;
   }
 
   async saveAnalysisRun(run: StoredAnalysisRun): Promise<void> {
+    this.ensureDatabase();
     tempStore.saveAnalysisRun(run);
 
     if (isDatabaseConfigured()) {
@@ -342,6 +343,7 @@ export class ScreenplayRepository {
   }
 
   async getAnalysisRun(id: string): Promise<StoredAnalysisRun | undefined> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -362,6 +364,7 @@ export class ScreenplayRepository {
             completedAt: row.completedAt ? row.completedAt.toISOString() : null,
           };
         }
+        return undefined;
       } catch (err) {
         console.error('Database read error (getAnalysisRun):', err instanceof Error ? err.message : String(err));
         throw new DatabaseError('Failed to fetch analysis run from PostgreSQL.');
@@ -372,6 +375,7 @@ export class ScreenplayRepository {
   }
 
   async getLatestAnalysisForProject(projectId: string): Promise<StoredAnalysisRun | undefined> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -397,6 +401,7 @@ export class ScreenplayRepository {
             completedAt: row.completedAt ? row.completedAt.toISOString() : null,
           };
         }
+        return undefined;
       } catch (err) {
         console.error('Database read error (getLatestAnalysisForProject):', err instanceof Error ? err.message : String(err));
         throw new DatabaseError('Failed to fetch latest analysis from PostgreSQL.');
@@ -407,6 +412,7 @@ export class ScreenplayRepository {
   }
 
   async getFindings(analysisId: string): Promise<RiskFinding[]> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -435,6 +441,7 @@ export class ScreenplayRepository {
   }
 
   async getFinding(id: string): Promise<RiskFinding | undefined> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -456,6 +463,7 @@ export class ScreenplayRepository {
             createdAt: r.createdAt.toISOString(),
           };
         }
+        return undefined;
       } catch (err) {
         console.error('Database read error (getFinding):', err instanceof Error ? err.message : String(err));
         throw new DatabaseError('Failed to fetch finding from PostgreSQL.');
@@ -535,6 +543,7 @@ export class ScreenplayRepository {
   async getEntities(
     analysisId: string
   ): Promise<Array<{ id: string; name: string; type: string; count: number; metadata?: any }>> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -564,6 +573,7 @@ export class ScreenplayRepository {
     status: string;
     createdAt?: string;
   }): Promise<void> {
+    this.ensureDatabase();
     const createdAtStr = rewrite.createdAt || new Date().toISOString();
     tempStore.saveRewrite({ ...rewrite, createdAt: createdAtStr });
 
@@ -597,6 +607,7 @@ export class ScreenplayRepository {
       createdAt: string;
     }>
   > {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -656,6 +667,7 @@ export class ScreenplayRepository {
   }
 
   async getEvidence(analysisId: string): Promise<StoredEvidence[]> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -723,6 +735,7 @@ export class ScreenplayRepository {
   }
 
   async getReport(id: string): Promise<StoredReport | undefined> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
@@ -742,6 +755,7 @@ export class ScreenplayRepository {
             updatedAt: r.updatedAt.toISOString(),
           };
         }
+        return undefined;
       } catch (err) {
         console.error('Database read error (getReport):', err instanceof Error ? err.message : String(err));
         throw new DatabaseError('Failed to fetch report from PostgreSQL.');
@@ -752,6 +766,7 @@ export class ScreenplayRepository {
   }
 
   async getReportsByProject(projectId: string): Promise<StoredReport[]> {
+    this.ensureDatabase();
     if (isDatabaseConfigured()) {
       try {
         const db = getDb();
